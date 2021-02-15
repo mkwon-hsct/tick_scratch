@@ -9,9 +9,7 @@ ILLUSION:42;
 
 /
 * @brief Return an instruction according to a traffic signal
-* @param signal: Color of the traffic signal. Either of `RED`YELLOW`GREEN
-* @type
-* - symbol
+* @param signal {symbol}: Color of the traffic signal. Either of `RED`YELLOW`GREEN
 * @return
 * - string
 \

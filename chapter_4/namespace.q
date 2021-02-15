@@ -11,13 +11,18 @@
 PI:acos -1;
 
 /
-* @brief Calculate a distance of two points expressed in cartesian coordeinates
-* @param cart1: point in cartesian coordinates space
-* @type
-* - list of float
-* @param cart2: point in cartesian coordinates space
-* @type
-* - list of float
+* Table to contain results of conversion between cartesian to pollar system.
+* # Columns
+* - cartesian | list of float | Point in cartesian coordinate
+* - pollar    | list of float | Point in pollar coordinate
+\
+.coordinates.HISTORY:flip `cartesian`pollar!"**"$\:();
+
+/
+* @brief
+* Calculate a distance of two points expressed in cartesian coordeinates
+* @param cart1 {list of float}: point in cartesian coordinates space
+* @param cart2 {list of float}: point in cartesian coordinates spaceat
 * @return
 * - float
 \
@@ -26,13 +31,10 @@ PI:acos -1;
  };
 
 /
-* @brief Calculate a distance of two points expressed in pollar coordeinates
-* @param cart1: point in pollar coordinates
-* @type
-* - list of float
-* @param cart2: point in pollar coordinates
-* @type
-* - list of float
+* @brief
+* Calculate a distance of two points expressed in pollar coordeinates
+* @param cart1 {list of float}: point in pollar coordinates
+* @param cart2 {list of float}: point in pollar coordinates
 * @return
 * - float
 \
@@ -42,10 +44,9 @@ PI:acos -1;
  };
 
 /
-* @brief Convert cartesian coordibates into pollar coordinates
-* @param cart: point in cartesian coordinates space
-* @type
-* - list of float
+* @brief
+* Convert cartesian coordibates into pollar coordinates
+* @param cart {list of float}: point in cartesian coordinates space
 * @return
 * - list of float
 \
@@ -68,29 +69,31 @@ PI:acos -1;
       // arctan(sin(theta) / cos(theta))
       atan cart[1] % cart 0
     ];
+  // Insert record
+  `.coordinates.HISTORY insert (enlist cart; enlist (r; theta));
   (r; theta)
  };
 
 /
-* @brief Convert pollar coordibates into cartesian coordinates
-* @param pollar: point in pollar coordinates space
-* @type
-* - list of float
+* @brief
+* Convert pollar coordibates into cartesian coordinates
+* @param pollar {list of float}: point in pollar coordinates space
 * @return
 * - list of float
 \
 .coordinates.pollar_to_cart:{[pollar]
   // (r * cos(theta); r * sin(theta))
-  (pollar[0]*cos pollar 1; pollar[0]*sin pollar 1)
+  cart:(pollar[0]*cos pollar 1; pollar[0]*sin pollar 1);
+  `.coordinates.HISTORY insert (enlist cart; enlist pollar);
+  cart
  };
 
 // Calculation test
 /
-* @brief Test conversion between cartesian and pollar coordinates and their calculations of distance
-* @param cart1: point in cartesian coordinates space
-* @type
-* - list of float
-* @param cart2: point in cartesian coordinates space
+* @brief
+* Test conversion between cartesian and pollar coordinates and their calculations of distance
+* @param cart1 {list of float}: point in cartesian coordinates space
+* @param cart2 {list of float}: point in cartesian coordinates space
 * @return
 * - boolean
 \

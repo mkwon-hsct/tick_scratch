@@ -1,0 +1,2 @@
+/home/mkwon/tick_scratch/chapter_4/table_structure/segments/segment1/hdb
+/home/mkwon/tick_scratch/chapter_4/table_structure/segments/segment2/hdb

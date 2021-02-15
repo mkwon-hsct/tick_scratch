@@ -2,9 +2,7 @@
 
 /
 * @brief Chop a sentence and glind until no one can tell it is the human writing.
-* @param sentence
-* @type
-* - string
+* @param sentence {string}
 * @return
 * - string
 \

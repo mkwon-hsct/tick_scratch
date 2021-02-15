@@ -3,7 +3,7 @@
 // Load namespace_trouble library
 \l namespace_trouble.q
 
-// Moveto 'space2'
+// Move to 'space2'
 \d .space2
 
 // Local

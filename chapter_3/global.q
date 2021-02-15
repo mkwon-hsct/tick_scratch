@@ -6,7 +6,7 @@ STATUS:`Clean;
 // Record of suspicious access
 SUSPICIOUS_ACCESS:();
 
-// Counter of visitors
+// Counter of trials to change status
 total:0;
 
 /
@@ -21,9 +21,7 @@ enter:{[]
 /
 * @brief
 * Change status of system to a passed value. Access count is incremented.
-* @param status: Target status. Either of `Clean or `Unclean.
-* @type
-* - symbol
+* @param status {symbol}: Target status. Either of `Clean or `Unclean.
 \
 change_status:{[status]
   // Increment the number of visitors
@@ -48,10 +46,8 @@ change_status:{[status]
 /
 * @brief
 * Calculate total payment of items in basket based on an amount of items and their prices.
-* @param prices: Prices of items in the basket.
-* @type
-* - list of float
-*
+* @param prices {list of float}: Prices of items in the basket.
+* @note
 * Catastorophic!! 'total' used inside this function overwrites the global variable 'total'.
 * Also a new global discount was created!!
 \
@@ -61,10 +57,10 @@ calc_basket:{[prices]
   discount::$[1 >= count prices; 0; 3 >= count prices; 0.2; 0.3];
   total::0;
   STATUS::`Received;
-  -1 string[STATUS], "discount rate: ", string discount;
+  -1 string[STATUS], ". discount rate: ", string discount;
   {[price]
     STATUS::`IN_PROGRESS;
-    total::total + discount * price;
+    total::total + (1-discount) * price;
     -1 "subtotal: ", string[total];
   } each prices;
   STATUS::`Done;

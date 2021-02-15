@@ -2,10 +2,7 @@
 
 /
 * @brief Generate first 'n' elements of Fibonacci sequence
-* @param n: The number of elements to generate
-* @type
-* - int
-* - long
+* @param n {number}: The number of elements to generate
 * @return
 * - list of long
 \
@@ -23,9 +20,7 @@ fibonacci:{[n]
 
 /
 * @brief Mock sum function
-* @param seq: sequence of numbers
-* @type
-* - list of long
+* @param seq {list of long}: sequence of numbers
 * @return
 * - long
 \
@@ -35,12 +30,8 @@ fibonacci:{[n]
 
 /
 * @brief Mock sum function with initial value
-* @param init: initial value
-* @type
-* - long
-* @param seq: sequence of numbers
-* @type
-* - list of long
+* @param init {long}: initial value
+* @param seq {list of long}: sequence of numbers
 * @return
 * - long
 \
@@ -50,15 +41,9 @@ fibonacci:{[n]
 
 /
 * @brief Apply a series of patch functions consequtively to corresponding target numbers
-* @param seq: Original sequence of numbers
-* @type
-* - list of long
-* @param target: target numbers
-* @type
-* - long
-* @param func: functions applied to 'target's
-* @type
-* - function
+* @param seq {list of long}: Original sequence of numbers
+* @param target {long}: target numbers
+* @param func {function}: functions applied to 'target's
 * @return
 * - list of long
 \
@@ -68,10 +53,7 @@ dynamic_patch:{[seq; targets; funcs]
 
 /
 * @brief Generate first 'n' elements of Fibonacci sequence
-* @param n: The number of elements to generate
-* @type
-* - int
-* - long
+* @param n {number}: The number of elements to generate
 * @return
 * - list of long
 \
@@ -84,9 +66,7 @@ fibonacci2:{[n]
 
 /
 * @brief Generate Fibonacci sequence until the last elment exceed 'threshold'
-* @param threshold: Threshold where generation of sequence stops
-* @type
-* - long
+* @param threshold {long}: Threshold where generation of sequence stops
 * @return
 * - list of long
 \
@@ -96,9 +76,7 @@ fibonacci_until:{[threshold]
 
 /
 * @brief Mock prds function
-* @param seq: sequence of numbers
-* @type
-* - list of long
+* @param seq {list of long}: sequence of numbers
 * @return
 * - list of long
 \
@@ -108,12 +86,8 @@ fibonacci_until:{[threshold]
 
 /
 * @brief Mock prds function with initial value
-* @param init: initial value
-* @type
-* - long
-* @param seq: sequence of numbers
-* @type
-* - list of long
+* @param init {long}: initial value
+* @param seq {list of long}: sequence of numbers
 * @return
 * - list of long
 \
@@ -123,15 +97,9 @@ fibonacci_until:{[threshold]
 
 /
 * @brief Apply a series of patch functions consequtively to corresponding target numbers. Dynamics changes can be observed.
-* @param seq: Original sequence of numbers
-* @type
-* - list of long
-* @param target: target numbers
-* @type
-* - long
-* @param func: functions applied to 'target's
-* @type
-* - function
+* @param seq {list of long}: Original sequence of numbers
+* @param target {long}: target numbers
+* @param func {function}: functions applied to 'target'stion
 * @return
 * - compound list
 \
@@ -141,10 +109,7 @@ observe_dynamic_patch:{[seq; targets; funcs]
 
 /
 * @brief Generate first 'n' elements of Fibonacci sequence
-* @param n: The number of elements to generate
-* @type
-* - int
-* - long
+* @param n {number}: The number of elements to generate
 * @return
 * - compound list
 \
@@ -157,9 +122,7 @@ observe_fibonacci2:{[n]
 
 /
 * @brief Generate Fibonacci sequence until the last elment exceed 'threshold'
-* @param threshold: Threshold where generation of sequence stops
-* @type
-* - long
+* @param threshold {long}: Threshold where generation of sequence stops
 * @return
 * - compound list
 \
@@ -169,9 +132,7 @@ observe_fibonacci_until:{[threshold]
 
 /
 * @brief Change each element to `happy if previous element is a multiple of 3 (including 0); otherwise negate it.
-* @param seq: sequence of number
-* @type
-* - list of long
+* @param seq {list of long}: sequence of number
 * @return
 * - mixed list IF 'seq' includes an element which is not a multiple of 3 among non-tail elements
 * - list of symbol IF all elements of 'seq' other than the last element are multiples of 3 

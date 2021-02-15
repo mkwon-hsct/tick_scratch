@@ -2,10 +2,7 @@
 
 /
 * @brief Add 1 to an argument
-* @param num: some number
-* @type
-* - (list of) long
-* - (list of) float
+* @param num {long | list of long | float | list of float}: some number
 * @return
 * - (list of) long IF 'num' is long
 * - (list of) float IF 'num' is float
@@ -52,4 +49,4 @@ func:{[x]
   //0N![string]; displays the string in standard out.
   0N!"x is ", string x;
   res
-  }
+ };

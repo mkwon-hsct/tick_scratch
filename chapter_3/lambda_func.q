@@ -2,14 +2,8 @@
 
 /
 * @brief Calculate correlation of two vectors
-* @param v1: first vector
-* @type
-* - list of long
-* - list of float
-* @param v2: second vector
-* @type
-* - list of long
-* - list of float
+* @param v1 {list of long | list of float}:: first vector
+* @param v2 {list of long | list of float}:: second vector
 * @return
 * - float
 \

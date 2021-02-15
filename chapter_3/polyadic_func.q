@@ -2,22 +2,10 @@
 
 /
 * @brief Sums up all argumants 
-* @param a1: some number
-* @type
-* - (list of) long
-* - (list of) float
-* @param a2: some number
-* @type
-* - (list of) long
-* - (list of) float
-* @param a3: some number
-* @type
-* - (list of) long
-* - (list of) float
-* @param a4: some number
-* @type
-* - (list of) long
-* - (list of) float
+* @param a1 {long | list of long | float | list of float}: some number
+* @param a2 {long | list of long | float | list of float}: some number
+* @param a3 {long | list of long | float | list of float}: some number
+* @param a4 {long | list of long | float | list of float}: some number
 * @return
 * - (list of) long IF all arguments are long
 * - (ist of) float IF any argument is float

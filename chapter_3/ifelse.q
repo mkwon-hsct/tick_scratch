@@ -30,9 +30,7 @@ show case4;
 // Intentionally returns an error
 /
 * @brief Returns error if type of 'arg' is neither a long nor a list of long
-* @param arg: Argument to check its type
-* @type
-* - any type
+* @param arg {any}: Argument to check its type
 * @return
 * - string IF 'arg' is either of a long or a long of list
 * - error IF 'arg' is neither a long nor a list of long
@@ -43,3 +41,4 @@ only_long:{[arg]
     '"The argument must be either of a long or a list of long"
   ]
  };
+ 
