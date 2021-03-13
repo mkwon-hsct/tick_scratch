@@ -15,19 +15,19 @@ system "p 5000";
 
 /
 * @brief Notice handle open on console and send back greetings to the client.
-* @param handle {int}: Client handle.
+* @param socket {int}: Client handle.
 \
-.z.po:{[handle]
-  -1 "Your client ", string[.z.u], " came in. He is ready at socket ", string[handle];
-  neg[handle] "show \"Welcome ", string[.z.u], ".\"";
+.z.po:{[socket]
+  -1 "Your client ", string[.z.u], " came in. He is ready at socket ", string[socket];
+  neg[socket] "show \"Welcome ", string[.z.u], ".\"";
   }
 
 /
 * @brief Notice handle close.
-* @param handle {int}: Client handle.
+* @param socket {int}: Client handle.
 \
-.z.pc:{[handle]
-  -1 "Sir, お客様がお帰りです。Socket ", string[handle], " is now closed.";
+.z.pc:{[socket]
+  -1 "Sir, お客様がお帰りです。Socket ", string[socket], " is now closed.";
  }
 
 /
@@ -38,7 +38,7 @@ system "p 5000";
 \
 .z.pg:{[query]
   -1 "Sir, ", string[.z.u], "が緊急のご要望をお持ちです。";
-  -1 "なんだって？こんなに忙しいというのに。仕方あるまい。";
+  -1 "なんだって？こんなに忙しいというのに。やむを得んな。";
   neg[.z.w] "show \"Wait for a moment.\"";
   value query
  }
