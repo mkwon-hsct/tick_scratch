@@ -7,7 +7,9 @@
 // Expand  width of console
 \c 25 200
 
-exercise_1:{[name; grp]
+exercise_1: (7*; "D"$) @' (7; "4 Jan, 2020");
+
+exercise_2:{[name; grp]
   $[
     // Invalid name
     name like "S*"; ['"Name starting from S is invalid: ", string name];
@@ -18,7 +20,7 @@ exercise_1:{[name; grp]
   ]
  };
 
-exercise_2:{[err]
+exercise_3:{[err]
   $[
     // Name Error
     err like "Name *"; ["Name Error >> ", err];
@@ -29,10 +31,10 @@ exercise_2:{[err]
   ]
  };
 
-// Apply exercise_1 to each pair of (name; group) with exercise_2 an error catch function
-.[exercise_1; ; exercise_2] each flip (`Jacob`Joshua`Graham`David`Mattew`Peter`Samuel; "NOXONNO")
+// Apply exercise_2 to each pair of (name; group) with exercise_3 an error catch function
+.[exercise_2; ; exercise_3] each flip (`Jacob`Joshua`Graham`David`Mattew`Peter`Samuel; "NOXONNO")
 
-exercise_3:{[num]
+exercise_4:{[num]
   // Collatz sequence generator
   collatz_gen:{[seq]
     $[
@@ -46,11 +48,11 @@ exercise_3:{[num]
   (collatz_gen/)[{[seq] (not last[seq] = 1) and 20 > count[seq]}; num]
  };
 
-exercise_3 110
+exercise_4 110
 
-exercise_3 12
+exercise_4 12
 
-exercise_4:{[truefalse; true_seq; false_seq]
+exercise_5:{[truefalse; true_seq; false_seq]
   inner:{[seq; true_val; false_val]
     // Replace first non-boolean value.
     // Use if-else to decide which value to substitute.
@@ -61,6 +63,6 @@ exercise_4:{[truefalse; true_seq; false_seq]
   1 _ (inner/)[(::), truefalse; true_seq; false_seq]
  };
 
-exercise_4[11010b; til 5; neg til 5]
+exercise_5[11010b; til 5; neg til 5]
 
 

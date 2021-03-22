@@ -43,6 +43,8 @@ fibonacci:{[n]
 \
 .z.ph:{[text_and_header]
   show text_and_header 1;
+  // Return with gzip encoding.
+  compress: text_and_header[1; `$"Accept-Encoding"] like "*gzip*";
   text: text_and_header 0;
   // Execute query
   result: .Q.trp[value; text; {[error; trace] (EXECUTION_FAILURE_; (error; .Q.sbt trace))}];
@@ -52,8 +54,12 @@ fibonacci:{[n]
       -2 last result 1;
       .h.he[result 1];
     ];
-    // Return result
-    .h.hn["200"; `txt; -3!result]
+    [
+      // Successful request.
+      // Compress if it si required.
+      result: $[compress; -35!(7; .Q.s1 result); .Q.s1 result];
+      .h.hn["200"; `txt; result]
+    ]
   ]
  }
 
