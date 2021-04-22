@@ -4,21 +4,14 @@
 * Example of thread execution.
 \
 
-/
-* @brief Busy sleep for a second.
-* @note
-* Worker thread cannot use system call.
-\
-sleep:{[]
-  now:.z.p;
-  while[00:00:01 > .z.p-now; (::)];
- };
+// Load sleep function.
+\l sleep.q
 
 /
 * @brief Display ID of thread every second. 
 \
 who_are_you:{[i]
-  do[10; -1 "thread ", string i; sleep[]];
+  do[10; -1 "thread ", string i; sleep 1];
  };
 
 /

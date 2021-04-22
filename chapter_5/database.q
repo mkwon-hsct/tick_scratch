@@ -12,7 +12,7 @@ EXECUTION_FAILURE_: `EXECUTION_STATUS_$`FAILURE;
 
 /
 * @brief Busy sleep.
-* @seconds {list of number}: Blocking time in seconds.
+* @param seconds {list of number}: Blocking time in seconds.
 * @note
 * Argument comes as enlist seconds.
 \
