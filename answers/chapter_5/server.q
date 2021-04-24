@@ -1,7 +1,8 @@
 /
 * @file server.q
 * @overview Answer of the exercises for chapter 5.
-* @note This proces must be started with `-U important_file`.
+* @note This proces must be started with:
+*   q server.q -U important_file -p 5000
 \
 
 // Set port 5000 if not defined.

@@ -1,6 +1,8 @@
 /
 * @file client.q
 * @overview Answer of the exercises for chapter 5.
+* @note This process must be started with:
+*   q client.q -user peter -password churchontherock
 \
 
 /
