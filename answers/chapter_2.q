@@ -1,7 +1,6 @@
-// chapter_2.q
-
 /
-* Anser keys for the exercises of chapter 2.
+* @file chapter_2.q
+* @overview Anser keys for the exercises of chapter 2.
 \
 
 exercise_1:type (2D; 00:01);

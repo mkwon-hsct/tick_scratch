@@ -1,7 +1,6 @@
-// chapter_4.q
-
 /
-* Anser keys for the exercises of chapter 4.
+* @file chapter_4.q
+* @overview Anser keys for the exercises of chapter 4.
 \
 
 exercise_1:{[] string .[!] flip ((Hazael; Syria); (Nebuchadenezzar; Babylon); (David; Israel))};

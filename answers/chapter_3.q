@@ -1,7 +1,6 @@
-// chapter_3.q
-
 /
-* Anser keys for the exercises of chapter 3.
+* @file chapter_3.q
+* @overview Anser keys for the exercises of chapter 3.
 \
 
 // Expand  width of console
