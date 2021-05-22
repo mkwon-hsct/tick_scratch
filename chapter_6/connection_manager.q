@@ -7,6 +7,9 @@
 //                     Initial Setting                   //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
+\l utility/load.q
+.load.load_file `:utility/log.q;
+
 // Open port defined in `connection_manager.config`.
 {[]
   managers: read0 `:config/connection_manager.config;
@@ -19,16 +22,32 @@
 
 /
 * @brief Table for managing settings of message producer.
+* @columns
+* - socket {int}: Socket of a client.
+* - name {symbol}: Account name of the client.
+* - host {string}: Host of the client account.
+* - port {string}: Port of the client account.
+* - channel {symbol}: Registered channel of the client.
 \
 PRODUCER: flip `socket`name`host`port`channel!"is**s"$\:();
 
 /
 * @brief Table for managing settings of message consumer.
+* @columns
+* - socket {int}: Socket of a client.
+* - name {symbol}: Account name of the client.
+* - host {string}: Host of the client account.
+* - port {string}: Port of the client account.
+* - channel {symbol}: Registered channel of the client.
+* - topics {list of symbol}: Registered topics of the client.
 \
 CONSUMER: flip `socket`name`host`port`channel`topics!"is**s*"$\:();
 
 /
 * @brief Table managing connection between producer and consumer.
+* @columns
+* - producer {symbol}: Account name of a producer.
+* - consumer {symbol}: Account name of a consumer.
 \
 CONNECTION: flip `producer`consumer!"ss"$\:();
 
@@ -73,12 +92,14 @@ load_accounts:{[]
   $[side;
     // Producer
     [
+      .log.info["add ", string[name], " as a producer"; channel_];
       `PRODUCER insert (.z.w; name; host_port 0; host_port 1; channel_);
       // Return matched consumer information
       select name, host, port, channel, topics from CONSUMER where channel = channel_
     ];
     // Consumer
     [
+      .log.info["add ", string[name], " as a consumer"; (channel_; topics_)];
       `CONSUMER insert (.z.w; name; host_port 0; host_port 1; channel_; topics_);
       // Return matched producer information
       select name, host, port, channel from PRODUCER where channel = channel_
