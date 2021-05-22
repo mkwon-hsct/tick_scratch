@@ -11,7 +11,7 @@
 {[]
   managers: read0 `:config/connection_manager.config;
   system "p ", last ":" vs managers first where managers like\: string[.z.h], "*";
- };
+ }[];
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                    Global Variables                   //
@@ -20,17 +20,17 @@
 /
 * @brief Table for managing settings of message producer.
 \
-PRODUCER: flip `name`host`port`channel!"s**s"$\:();
+PRODUCER: flip `socket`name`host`port`channel!"is**s"$\:();
 
 /
 * @brief Table for managing settings of message consumer.
 \
-CONSUMER: flip `name`host`port`channel`topic!"s**s*"$\:();
+CONSUMER: flip `socket`name`host`port`channel`topics!"is**s*"$\:();
 
 /
 * @brief Table managing connection between producer and consumer.
 \
-CONNECTION: flip `producer`consumer!"ss"$\:():
+CONNECTION: flip `producer`consumer!"ss"$\:();
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                   Private Functions                   //
@@ -41,6 +41,15 @@ CONNECTION: flip `producer`consumer!"ss"$\:():
 \
 load_accounts:{[]
   {[name;val] setenv[`$name; val]} ./: ":" vs/: read0 `:config/account.config;
+ };
+
+/
+* @brief Delete a record of the dropped client from producer and consumer table.
+* @param socket {int}: Socket of the dropped client.
+\
+.z.pc:{[socket_]
+  delete from `PRODUCER where socket=socket_;
+  delete from `CONSUMER where socket=socket_;
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -59,19 +68,20 @@ load_accounts:{[]
 * - table: Matched consumer/producer information.
 \
 .cmng.register:{[name;side;channel_;topics_]
-  host_port: getenv each string[name],/: ("_host"; "_port");
+  host_port: getenv each `$string[name],/: ("_host"; "_port");
+  if["" ~ host_port 0; neg[.z.w] (show; "Who are you?"); :()];
   $[side;
     // Producer
     [
-      `PRODUCER insert (name; host_port 0; host_port 1; channel_);
+      `PRODUCER insert (.z.w; name; host_port 0; host_port 1; channel_);
       // Return matched consumer information
-      select from CONSUMER where channel = channel_
-    ]
+      select name, host, port, channel, topics from CONSUMER where channel = channel_
+    ];
     // Consumer
     [
-      `CONSUMER insert (name; host_port 0; host_port 1; channel_; topics_);
+      `CONSUMER insert (.z.w; name; host_port 0; host_port 1; channel_; topics_);
       // Return matched producer information
-      select from PRODUCER where channel = channel_
+      select name, host, port, channel from PRODUCER where channel = channel_
     ]
   ]
  };

@@ -14,7 +14,7 @@ CONNECTION_MANAGER_SOCKET: {[]
   managers: read0 `:config/connection_manager.config;
   // Use Unix domain socket
   hopen `$":unix://", last ":" vs managers first where managers like\: string[.z.h], "*"
- };
+ }[];
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                      Interface                        //
