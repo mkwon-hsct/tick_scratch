@@ -47,7 +47,7 @@ CONSUMER_FILTERS: 2!flip `channel`topic`sockets!"ss*"$\:();
 
 /
 * @brief A process/user calls this function remotely to notify the counter party
-*  that a new connection is established. Register the host, the port and a socket
+*  that a new connection was established. Register the host, the port and a socket
 *  of the caller.
 * @param host {string}: Host of the caller.
 * @param port {string}: Port of the caller.
@@ -76,8 +76,9 @@ add_consumer_filter:{[channel;topics;remote;socket]
 * - port {string}: Port of the target.
 * - (topics) {list of symbol}: Topics in which the target soncumer is interested.
 * @param channel {symbol}: Channel registered to the connection manager this time.
-* @param topics {list of symbol}: Topics registered to the connection manager this
-*  time (if the caller is a consumer).
+* @param topics {variable}: 
+* - list of symbol: Topics registered to the connection manager this time if the caller is a consumer.
+* - general null: If the caller is a producer
 \
 connect_and_register:{[matched;channel;topics]
   host_port: matched `host`port;
@@ -85,12 +86,12 @@ connect_and_register:{[matched;channel;topics]
   socket: $[not null socket_: first exec socket from CONNECTION where (host,' port) ~\: raze host_port;
     // Already connected
     [
-      .log.info["already connected: ", ":" sv host_port; (::)];
+      .log.info["already connected"; `$":" sv host_port];
       socket_
     ];
     // New connection
     [
-      .log.info["new connection: ", ":" sv host_port; (::)];
+      .log.info["new connection"; `$":" sv host_port];
       handle: $[.z.h ~ `$host_port 0;
         // Use unix domain socket if the target is in the same host
         `$":unix://", host_port 1;
@@ -107,12 +108,40 @@ connect_and_register:{[matched;channel;topics]
 
   // Register the socket to `CONSUMER_FILTERS` if the matched record is a consumer's one.
   $[`topics in key matched;
-    // The record has `topics`, meaning it is consumer
+    // The record has `topics`, meaning it is a consumer
     add_consumer_filter[channel; matched `topics; 0b; socket];
-    // Matched record is producer
+    // Matched record is a producer
     socket (`add_consumer_filter; channel; topics; 1b; 0Ni)
   ];
  
+ };
+
+/
+* @brief Delete a socket from `CONSUMER_FILTERS`.
+* @param socket_ {int}: Socket to delete from filters. 
+\
+delete_socket_from_filters:{[socket_]
+  keys_and_count: flip exec (channel; topic; sockets) from CONSUMER_FILTERS where socket_ in/: sockets;
+  {[socket_;channel_;topic_;sockets]
+    $[1 = count sockets;
+      // Only socket. Delete the filter.
+      delete from `CONSUMER_FILTERS where channel = channel_, topic = topic_;
+      // Other consumers are subscribing
+      CONSUMER_FILTERS[(channel_; topic_)]: CONSUMER_FILTERS[(channel_; topic_)] except socket_
+    ];
+  }[socket_] ./: keys_and_count; 
+ };
+
+/
+* @brief Delete a record of the dropped counter-party.
+* @param socket_ {int}: Socket of the dropped counter-party.
+\
+.z.pc:{[socket_]
+  handle: `$":" sv first each exec (host; port) from CONNECTION where socket = socket_;
+  .log.info["connection dropped"; handle];
+  delete from `CONNECTION where socket = socket_;
+  // Delete the socket from filters
+  delete_socket_from_filters[socket_];
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
