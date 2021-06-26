@@ -86,12 +86,12 @@ connect_and_register:{[matched;channel;topics]
   socket: $[not null socket_: first exec socket from CONNECTION where (host,' port) ~\: raze host_port;
     // Already connected
     [
-      .log.info["already connected"; `$":" sv host_port];
+      .log.info["already connected"; hsym `$":" sv host_port];
       socket_
     ];
     // New connection
     [
-      .log.info["new connection"; `$":" sv host_port];
+      .log.info["new connection"; hsym `$":" sv host_port];
       handle: $[.z.h ~ `$host_port 0;
         // Use unix domain socket if the target is in the same host
         `$":unix://", host_port 1;
@@ -124,7 +124,7 @@ delete_socket_from_filters:{[socket_]
   keys_and_count: flip exec (channel; topic; sockets) from CONSUMER_FILTERS where socket_ in/: sockets;
   {[socket_;channel_;topic_;sockets]
     $[1 = count sockets;
-      // Only socket. Delete the filter.
+      // Last socket. Delete the filter.
       delete from `CONSUMER_FILTERS where channel = channel_, topic = topic_;
       // Other consumers are subscribing
       CONSUMER_FILTERS[(channel_; topic_)]: CONSUMER_FILTERS[(channel_; topic_)] except socket_
@@ -137,7 +137,7 @@ delete_socket_from_filters:{[socket_]
 * @param socket_ {int}: Socket of the dropped counter-party.
 \
 .z.pc:{[socket_]
-  handle: `$":" sv first each exec (host; port) from CONNECTION where socket = socket_;
+  handle: hsym `$":" sv first each exec (host; port) from CONNECTION where socket = socket_;
   .log.info["connection dropped"; handle];
   delete from `CONNECTION where socket = socket_;
   // Delete the socket from filters

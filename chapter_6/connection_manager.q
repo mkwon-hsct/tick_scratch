@@ -64,8 +64,8 @@ CONNECTION: flip `producer`consumer!"ss"$\:();
 * @param port {string}: Port of the caller. 
 \
 register_connection_manager:{[host;port]
-  handle: `$":" sv (""; host; port);
-  .log.info["peer connection manager notified of a new connection: `", string handle; (::)];
+  handle: hsym `$":" sv (host; port);
+  .log.info["peer connection manager notified of a new connection"; handle];
   CONNECTION_MANAGERS[handle]: .z.w;
  };
 
@@ -85,7 +85,7 @@ connect_peer_manager:{[peer]
   ];
   if[not socket ~ (::);
     // New connection was established.
-    .log.info["connected to a peer connection manager: `", string handle; (::)];
+    .log.info["connected to a peer connection manager"; handle];
     CONNECTION_MANAGERS[handle]: socket;
     //　Notify the target of the new connection.
     socket (`register_connection_manager; string .z.h; string system "p");
@@ -179,7 +179,7 @@ load_accounts:{[]
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /
-* @brief Register a client as producer or consumer with channel (and topics). Called symchronously.
+* @brief Register a client as producer or consumer with channel (and topics). Called synchronously.
 * @param name {symbol}: Account name.
 * @param side {bool}: Producer or consumer.
 * - true: Producer
