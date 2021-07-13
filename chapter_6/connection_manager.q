@@ -21,7 +21,7 @@
 * @values
 * Sockets of the connection managers.
 \
-CONNECTION_MANAGERS: ()!`int$();
+CONNECTION_MANAGERS: (`symbol$())!`int$();
 
 /
 * @brief Table for managing settings of message producer.
@@ -142,8 +142,8 @@ load_accounts:{[]
 \
 .z.pc:{[socket_]
 
-  $[
-    not ` ~ handle: CONNECTION_MANAGERS?socket_;
+  // CONNECTION_MANAGERS returns () in a single environment 
+  $[not ` ~ handle: CONNECTION_MANAGERS?socket_;
     [
       // Socket of a connection manager.
       .log.info["peer connection manager dropped"; handle];
@@ -180,7 +180,7 @@ load_accounts:{[]
 
 /
 * @brief Register a client as producer or consumer with channel (and topics). Called synchronously.
-* @param name {symbol}: Account name.
+* @param name_ {symbol}: Account name.
 * @param side {bool}: Producer or consumer.
 * - true: Producer
 * - false: Consumer 
@@ -189,27 +189,49 @@ load_accounts:{[]
 * @return 
 * - table: Matched consumer/producer information.
 \
-.cmng.register:{[name;side;channel_;topics_]
-  host_port: getenv each `$string[name],/: ("_host"; "_port");
+.cmng.register:{[name_;side;channel_;topics_]
+  host_port: getenv each `$string[name_],/: ("_host"; "_port");
   if["" ~ host_port 0; neg[.z.w] (show; "Who are you?"); :()];
   $[side;
     // Producer
     [
-      .log.info["add ", string[name], " as a producer"; channel_];
-      register_producer[.z.w; name; host_port 0; host_port 1; channel_];
+      .log.info["add ", string[name_], " as a producer"; channel_];
+      register_producer[.z.w; name_; host_port 0; host_port 1; channel_];
       // Propagate the information to the remote connection managers 
-      value[CONNECTION_MANAGERS] @\: (`register_producer; 0Ni; name; host_port 0; host_port 1; channel_);
+      value[CONNECTION_MANAGERS] @\: (`register_producer; 0Ni; name_; host_port 0; host_port 1; channel_);
       // Return matched consumer information
-      select name, host, port, channel, topics from CONSUMER where channel = channel_
+      select name, host, port, channel, topics from CONSUMER where channel = channel_, not name = name_
     ];
     // Consumer
     [
-      .log.info["add ", string[name], " as a consumer"; (channel_; topics_)];
-      register_consumer[.z.w; name; host_port 0; host_port 1; channel_; topics_];
+      .log.info["add ", string[name_], " as a consumer"; (channel_; topics_)];
+      register_consumer[.z.w; name_; host_port 0; host_port 1; channel_; topics_];
       // Propagate the information to the remote connection managers 
-      value[CONNECTION_MANAGERS] @\: (`register_consumer; 0Ni; name; host_port 0; host_port 1; channel_; topics_);
+      value[CONNECTION_MANAGERS] @\: (`register_consumer; 0Ni; name_; host_port 0; host_port 1; channel_; topics_);
       // Return matched producer information
-      select name, host, port, channel from PRODUCER where channel = channel_
+      select name, host, port, channel from PRODUCER where channel = channel_, not name = name_
+    ]
+  ]
+ };
+
+/
+* @brief Generate a unique channel name and returns it with the target's host and port.
+* @param name {symbol}: Name of the requester.
+* @param target {symbol}: Name of the target.
+* @return 
+* - string: If the target does not exist.
+* - compound list: Tuple of (channel; target host; target port).
+\
+.cmng.process_private_chat_request:{[name; target]
+  host_port: getenv each `$string[target],/: ("_host"; "_port");
+  $["" ~ host_port 0;
+    // Target does not exist. Return the error message.
+    "no such user";
+    [
+      // Generate unique channel
+      channel: `$"_" sv string (`private; name; target);
+      // Send back host, port and a unique channel name to the requester
+      (host_port, channel)
     ]
   ]
  };
