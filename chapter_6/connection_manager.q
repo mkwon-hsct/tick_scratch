@@ -1,6 +1,6 @@
 /
 * @file connection_manager.q
-* @overview Define functionalities of connection manager.
+* @overview Define functionalities of Connection manager.
 \
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//

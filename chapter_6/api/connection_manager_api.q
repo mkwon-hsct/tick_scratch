@@ -54,6 +54,11 @@ CONSUMER_FILTERS: 2!flip `channel`topic`sockets!"ss*"$\:();
 \
 PRIVATE_MESSAGE_CHANNEL: (`$())!`$();
 
+/
+* @brief Name pattern of processes which are excluded to publish to `system_log` channel.
+\
+SYSTEM_LOG_EXCLUDED_PROCESS: "tickerplant*";
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                   Private Functions                   //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -88,17 +93,18 @@ add_consumer_filter:{[channel;topics;remote;socket]
 /
 * @brief Start connection from a matched record if it has not been connected.
 * @param matched {dictionary}: Record of matched user/process.
+* - name {symbol}: Account name of conterparty.
 * - host {string}: Host of the target.
 * - port {string}: Port of the target.
-* - (topics) {list of symbol}: Topics in which the target soncumer is interested.
-* @param channel {symbol}: Channel registered to the connection manager this time.
+* - channel {symbol}: Channel name.
+* - (topics) {list of symbol}: Topics in which the target consumer is interested.
 * @param topics {variable}: 
 * - list of symbol: Topics registered to the connection manager this time if the caller is a consumer.
 * - general null: If the caller is a producer
 \
-connect_and_register:{[matched;channel;topics]
+connect_and_register:{[matched;topics]
   host_port: matched `host`port;
-  // Serach if the host-port already exists
+  // Search if the host-port already exists
   socket: $[not null socket_: first exec socket from CONNECTION where (host,' port) ~\: raze host_port;
     // Already connected
     [
@@ -125,9 +131,9 @@ connect_and_register:{[matched;channel;topics]
   // Register the socket to `CONSUMER_FILTERS` if the matched record is a consumer's one.
   $[`topics in key matched;
     // The record has `topics`, meaning it is a consumer
-    add_consumer_filter[channel; matched `topics; 0b; socket];
+    add_consumer_filter[matched `channel; matched `topics; 0b; socket];
     // Matched record is a producer
-    socket (`add_consumer_filter; channel; topics; 1b; 0Ni)
+    socket (`add_consumer_filter; matched `channel; topics; 1b; 0Ni)
   ];
  
  };
@@ -175,12 +181,16 @@ delete_socket_from_filters:{[socket_]
 .cmng_api.register_as_producer: {[name;channel]
   // Initialize account name if not defined
   if[MY_ACCOUNT_NAME ~ `; MY_ACCOUNT_NAME::name];
-  matched: CONNECTION_MANAGER_SOCKET (`.cmng.register; name; 1b; channel; (::));
+  // Publish to `system_log` channel if process name does not match the pattern of excluded processes.
+  matched: $[name like SYSTEM_LOG_EXCLUDED_PROCESS;
+    CONNECTION_MANAGER_SOCKET (`.cmng.register; name; 1b; channel; (::));
+    raze CONNECTION_MANAGER_SOCKET each (`.cmng.register; name; 1b),/: (channel; `system_log),\:  (::)
+  ];
   $[count matched;
     [
       // Matched some records
-      .log.info["matched ", string[count matched], " records."; (::)];
-      connect_and_register[; channel; ::] each matched
+      .log.info["matched ", string[count matched], " records."; ::];
+      connect_and_register[; ::] each matched
     ];
     [
       // No record matched
@@ -203,8 +213,8 @@ delete_socket_from_filters:{[socket_]
   $[count matched;
     [
       // Matched some records
-      .log.info["matched ", string[count matched], " records."; (::)];
-      connect_and_register[; channel; topics] each matched
+      .log.info["matched ", string[count matched], " records."; ::];
+      connect_and_register[; topics] each matched
     ];
     [
       // No record matched
@@ -222,7 +232,7 @@ delete_socket_from_filters:{[socket_]
 * @param is_async {bool}: Flag to publish a message asynchronously.
 \
 .cmng_api.publish:{[channel;topic;table;message;is_async]
-  ($[is_async; neg; ::] raze CONSUMER_FILTERS[((channel; topic); (channel; `all))][`sockets]) @\: (`.cmng_api.update; table; (.z.p; topic; MY_ACCOUNT_NAME; message));
+  ($[is_async; neg; ::] raze CONSUMER_FILTERS[((channel; topic); (channel; `all); (`system_log; `all))][`sockets]) @\: (`.cmng_api.update; table; (.z.p; topic; MY_ACCOUNT_NAME; message));
  }
 
 /
