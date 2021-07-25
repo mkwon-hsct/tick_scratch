@@ -40,10 +40,13 @@ CONNECTION: flip `host`port`socket!"**i"$\:();
 
 /
 * @brief Table holding sockets for a combination of a channel and a topic.
-* @key list of symbol: Tuple of (target channel; topic of the message).
-* @value list of int: Target sockets for the channel and the topic.
+* @columns
+* - channel {symbol}: Target channel of a message.
+* - topic {topic}: Topic of the message.
+* - sockets {list of int}: Target sockets for the channel and the topic.
+* @note Add a dummy record to fix the type of sockets as a list of int.
 \
-CONSUMER_FILTERS: enlist[``]!enlist `int$();
+CONSUMER_FILTERS: 2!flip `channel`topic`sockets!(enlist `; enlist `; enlist `int$());
 
 /
 * @brief Map from a target name to a unique channel.
@@ -83,8 +86,8 @@ add_consumer_filter:{[channel;topics;remote;socket]
   filters: channel,/: topics,\: $[remote; .z.w; socket];
   .log.info["add a consumer to filters"; filters];
   {[channel;topic;socket]
-    // Add a new socket
-    CONSUMER_FILTERS[enlist (channel; topic)],: socket; 
+    // Replace the value (`sockets![list of int]) with the new value of the same type.
+    CONSUMER_FILTERS[(channel; topic)]:@[CONSUMER_FILTERS[(channel; topic)]; `sockets; ,; socket];
   } ./: filters;
  };
 
@@ -140,16 +143,16 @@ connect_and_register:{[matched;topics]
 * @brief Delete a socket from `CONSUMER_FILTERS`.
 * @param socket_ {int}: Socket to delete from filters. 
 \
-delete_socket_from_filters:{[socket]
-  channel_topics: where socket in/: CONSUMER_FILTERS;
-  {[socket_;channel;topic;sockets]
+delete_socket_from_filters:{[socket_]
+  keys_and_count: flip exec (channel; topic; sockets) from CONSUMER_FILTERS where socket_ in/: sockets;
+  {[socket_;channel_;topic_;sockets]
     $[1 = count sockets;
       // Last socket. Delete the filter.
-      CONSUMER_FILTERS:: enlist[(channel; topic)] _ CONSUMER_FILTERS;
+      delete from `CONSUMER_FILTERS where channel = channel_, topic = topic_;
       // Other consumers are subscribing
-      CONSUMER_FILTERS[(channel; topic)]: CONSUMER_FILTERS[(channel; topic)] except socket_
+      CONSUMER_FILTERS[(channel_; topic_)]: @[CONSUMER_FILTERS[(channel_; topic_)]; `sockets; except; socket_]
     ];
-  }[socket] ./: channel_topics,' count each CONSUMER_FILTERS[channel_topics]; 
+  }[socket_] ./: keys_and_count; 
  };
 
 /
@@ -224,8 +227,8 @@ delete_socket_from_filters:{[socket]
 
 /
 * @brief Call a remote function applying a filter to a channel and topic.
-* @param channel {symbol}: Channel to which call a function.
-* @param topic {symbol}: Topic of the call.
+* @param channel_ {symbol}: Channel to which call a function.
+* @param topic {symbol}: Topic of the call. Null symbol to broadcast to a channel.
 * @param function {symbol}: Name of a remote function to call.
 * @param arguments {compound list}: Arguments of the function.
 * @param is_async {bool}: Flag to call the function asynchronously.
@@ -233,10 +236,16 @@ delete_socket_from_filters:{[socket]
 * - null: If the call is asynchronous.
 * - any: If the call is synchronous.
 \
-.cmng_api.call:{[channel;topic;function;arguments;is_async]
-  sockets: raze CONSUMER_FILTERS[((channel; topic); (channel; `all))];
+.cmng_api.call:{[channel_;topic;function;arguments;is_async]
+  sockets: $[topic ~ `;
+    // Broadcast to the channel
+    // Ensure the type of sockets is a list of int even if nothhing hits the condition.
+    (`int$()), distinct raze exec sockets from CONSUMER_FILTERS where channel = channel_;
+    // Specific topic in the channel
+    raze CONSUMER_FILTERS[((channel_; topic); (channel_; `all))][`sockets]
+  ];
   // Publish to `system_log` channel
-  -25!(CONSUMER_FILTERS[(`system_log; `all)]; `.cmng_api.log_call, function, arguments);
+  -25!(CONSUMER_FILTERS[(`system_log; `all)][`sockets]; `.cmng_api.log_call, function, arguments);
   $[is_async;
     -25!(sockets; function, arguments);
     sockets @\: function, arguments
@@ -245,12 +254,18 @@ delete_socket_from_filters:{[socket]
 
 /
 * @brief Publish a message applying a filter to a channel and a topic.
-* @param channel {symbol}: Channel to which publish a message.
-* @param topic {symbol}: Topic of the message.
+* @param channel_ {symbol}: Channel to which publish a message.
+* @param topic {symbol}: Topic of the message. Null symbol to broadcast to a channel.
 * @param message {any}: Message to send.
 \
-.cmng_api.publish:{[channel;topic;table;message]
-  sockets: raze CONSUMER_FILTERS[((channel; topic); (channel; `all); (`system_log; `all))];
+.cmng_api.publish:{[channel_;topic;table;message]
+  sockets: $[topic ~ `;
+    // Broadcast to the channel
+    // Ensure the type of sockets is a list of int even if nothhing hits the condition.
+    (`int$()), distinct raze exec sockets from CONSUMER_FILTERS where channel in (channel_; `system_log);
+    // Specific topic in the channel
+    raze CONSUMER_FILTERS[((channel_; topic); (channel_; `all); (`system_log; `all))][`sockets]
+  ];
   -25!(sockets; (`.cmng_api.update; table; (.z.p; topic; MY_ACCOUNT_NAME; message)));
  };
 

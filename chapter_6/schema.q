@@ -20,4 +20,4 @@ DATABASE_TABLES: enlist `MESSAGE_BOX;
 * @column sender {symbol}: Sender of the message.
 * @column message {string}: Message itself.
 \
-MESSAGE_BOX:: flip `time`topic`sender`message!"pss*"$\: ();
+MESSAGE_BOX: flip `time`topic`sender`message!"pss*"$\: ();

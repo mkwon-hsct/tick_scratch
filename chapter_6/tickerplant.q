@@ -58,7 +58,7 @@ if[COMMANDLINE_ARGUMENTS `t;
   // @brief Buffer for storing tables.
   // @key list of symbol: Tuple of (table; topic).
   // @value table: Temporary table to store data.
-  TABLE_BUFFER: ()!();
+  TABLE_BUFFER: enlist[``]!enlist (::);
  ];
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -96,7 +96,8 @@ $[not null COMMANDLINE_ARGUMENTS `t;
     // Write the data to the log file
     ACTIVE_LOG_SOCKET enlist (`.cmng_api.update; table; data);
     // Store in a table
-    TABLE_BUFFER[(table; data 1)]: TABLE_BUFFER[(table; data 1)] upsert data;
+    // Get schema if the value has not been initialized by a table
+    TABLE_BUFFER[(table; data 1)]: $[() ~ current: TABLE_BUFFER[(table; data 1)]; get[table]; current] upsert data;
   };
   // Non-batch processing
   .cmng_api.update:{[table;data]
@@ -127,7 +128,9 @@ $[not null COMMANDLINE_ARGUMENTS `t;
 .z.ts:{[now]
   {[table_topic; data]
     .cmng_api.call[RDB_CHANNEL; table_topic 1; `.cmng_api.update; table_topic[1], enlist data; 1b];
-  } each flip (key; value) @\: TABLE_BUFFER;
+    // Make table empty
+    TABLE_BUFFER[table_topic]: 0#TABLE_BUFFER[table_topic];
+  } ./: flip (key; value) @\: TABLE_BUFFER;
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -139,3 +142,6 @@ $[not null COMMANDLINE_ARGUMENTS `t;
 
 // Register as an upstream of RDB and Log Replayer
 .cmng_api.register_as_producer[COMMANDLINE_ARGUMENTS `user;] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
+
+// Start timer
+\t COMMANDLINE_ARGUMENTS[`t]
