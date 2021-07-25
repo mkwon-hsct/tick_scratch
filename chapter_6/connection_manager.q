@@ -153,23 +153,22 @@ load_accounts:{[]
       :()
     ];
 
-    // dropped_producer is ("some_host"; "some_port") or ((); ())
-    count first dropped_producer: first each exec (host; port) from PRODUCER where socket=socket_;
     [
-      // Socket of a producer.
-      delete from `PRODUCER where socket=socket_;
-      // Propagate the information to remote connection managers
-      neg[value CONNECTION_MANAGERS] @\: (`delete_client; `PRODUCER; dropped_producer 0; dropped_producer 1);
-      // Escape
-      :()
-    ];
-    
-    [
-      // Socket of a consumer.
-      count first dropped_consumer: first each exec (host; port) from CONSUMER where socket=socket_;
-      delete from `CONSUMER where socket=socket_;
-      // Propagate the information to remote connection managers
-      neg[value CONNECTION_MANAGERS] @\: (`delete_client; `CONSUMER; dropped_consumer 0; dropped_consumer 1)
+      // dropped_producer is ("some_host"; "some_port") or ((); ())
+      if[count first dropped_producer: first each exec (host; port) from PRODUCER where socket=socket_;
+        // Producer dropped
+        delete from `PRODUCER where socket=socket_;
+        // Propagate the information to remote connection managers
+        neg[value CONNECTION_MANAGERS] @\: (`delete_client; `PRODUCER; dropped_producer 0; dropped_producer 1)
+      ];
+
+      if[count first dropped_consumer: first each exec (host; port) from CONSUMER where socket=socket_;
+        // Consumer dropped
+        delete from `CONSUMER where socket=socket_;
+        // Propagate the information to remote connection managers
+        neg[value CONNECTION_MANAGERS] @\: (`delete_client; `CONSUMER; dropped_consumer 0; dropped_consumer 1)
+      ]
+      
     ]
   ];
  };

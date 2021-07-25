@@ -40,12 +40,10 @@ CONNECTION: flip `host`port`socket!"**i"$\:();
 
 /
 * @brief Table holding sockets for a combination of a channel and a topic.
-* @columns
-* - channel {symbol}: Target channel of a message.
-* - topic {topic}: Topic of the message.
-* - sockets {list of int}: Target sockets for the channel and the topic.
+* @key list of symbol: Tuple of (target channel; topic of the message).
+* @value list of int: Target sockets for the channel and the topic.
 \
-CONSUMER_FILTERS: 2!flip `channel`topic`sockets!"ss*"$\:();
+CONSUMER_FILTERS: enlist[``]!enlist `int$();
 
 /
 * @brief Map from a target name to a unique channel.
@@ -85,8 +83,8 @@ add_consumer_filter:{[channel;topics;remote;socket]
   filters: channel,/: topics,\: $[remote; .z.w; socket];
   .log.info["add a consumer to filters"; filters];
   {[channel;topic;socket]
-    // Replace the value (`sockets![list of int]) with the new value of the same type.
-    CONSUMER_FILTERS[(channel; topic)]:@[CONSUMER_FILTERS[(channel; topic)]; `sockets; ,; socket];
+    // Add a new socket
+    CONSUMER_FILTERS[enlist (channel; topic)],: socket; 
   } ./: filters;
  };
 
@@ -142,16 +140,16 @@ connect_and_register:{[matched;topics]
 * @brief Delete a socket from `CONSUMER_FILTERS`.
 * @param socket_ {int}: Socket to delete from filters. 
 \
-delete_socket_from_filters:{[socket_]
-  keys_and_count: flip exec (channel; topic; sockets) from CONSUMER_FILTERS where socket_ in/: sockets;
-  {[socket_;channel_;topic_;sockets]
+delete_socket_from_filters:{[socket]
+  channel_topics: where socket in/: CONSUMER_FILTERS;
+  {[socket_;channel;topic;sockets]
     $[1 = count sockets;
       // Last socket. Delete the filter.
-      delete from `CONSUMER_FILTERS where channel = channel_, topic = topic_;
+      CONSUMER_FILTERS:: enlist[(channel; topic)] _ CONSUMER_FILTERS;
       // Other consumers are subscribing
-      CONSUMER_FILTERS[(channel_; topic_)]: @[CONSUMER_FILTERS[(channel_; topic_)]; `sockets; except; socket_]
+      CONSUMER_FILTERS[(channel; topic)]: CONSUMER_FILTERS[(channel; topic)] except socket_
     ];
-  }[socket_] ./: keys_and_count; 
+  }[socket] ./: channel_topics,' count each CONSUMER_FILTERS[channel_topics]; 
  };
 
 /
@@ -225,15 +223,36 @@ delete_socket_from_filters:{[socket_]
  };
 
 /
+* @brief Call a remote function applying a filter to a channel and topic.
+* @param channel {symbol}: Channel to which call a function.
+* @param topic {symbol}: Topic of the call.
+* @param function {symbol}: Name of a remote function to call.
+* @param arguments {compound list}: Arguments of the function.
+* @param is_async {bool}: Flag to call the function asynchronously.
+* @return 
+* - null: If the call is asynchronous.
+* - any: If the call is synchronous.
+\
+.cmng_api.call:{[channel;topic;function;arguments;is_async]
+  sockets: raze CONSUMER_FILTERS[((channel; topic); (channel; `all))];
+  // Publish to `system_log` channel
+  -25!(CONSUMER_FILTERS[(`system_log; `all)]; `.cmng_api.log_call, function, arguments);
+  $[is_async;
+    -25!(sockets; function, arguments);
+    sockets @\: function, arguments
+  ]
+ };
+
+/
 * @brief Publish a message applying a filter to a channel and a topic.
 * @param channel {symbol}: Channel to which publish a message.
 * @param topic {symbol}: Topic of the message.
 * @param message {any}: Message to send.
-* @param is_async {bool}: Flag to publish a message asynchronously.
 \
-.cmng_api.publish:{[channel;topic;table;message;is_async]
-  ($[is_async; neg; ::] raze CONSUMER_FILTERS[((channel; topic); (channel; `all); (`system_log; `all))][`sockets]) @\: (`.cmng_api.update; table; (.z.p; topic; MY_ACCOUNT_NAME; message));
- }
+.cmng_api.publish:{[channel;topic;table;message]
+  sockets: raze CONSUMER_FILTERS[((channel; topic); (channel; `all); (`system_log; `all))];
+  -25!(sockets; (`.cmng_api.update; table; (.z.p; topic; MY_ACCOUNT_NAME; message)));
+ };
 
 /
 * @brief Start a private chat with a specific user.
@@ -284,5 +303,5 @@ delete_socket_from_filters:{[socket_]
 * @param message {string}: Text message to send.
 \
 .cmng_api.publish_private: {[target;message]
-  .cmng_api.publish[PRIVATE_MESSAGE_CHANNEL target; `user_chat; `MESSAGE_BOX; enlist message; 1b]
+  .cmng_api.publish[PRIVATE_MESSAGE_CHANNEL target; `user_chat; `MESSAGE_BOX; enlist message]
  };
