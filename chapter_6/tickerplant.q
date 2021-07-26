@@ -74,7 +74,7 @@ log_roll_check:{[data]
     // Roll out a new log file
     hclose ACTIVE_LOG_SOCKET;
     // Send a signal to RDB and Log Replayer with the name of the current log file
-    .cmng_api.call[; `; `task_at_rolling_logfile; enlist ACTIVE_LOG; 1b] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
+    .cmng_api.call[; `; `task_at_rolling_logfile; ACTIVE_LOG; 1b] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
     ACTIVE_LOG:: hsym `$(string[`date$NEXT_LOG_ROLL_TIME] except "."), "_", string[`hh$NEXT_LOG_ROLL_TIME], ".log";
     .log.info["roll out a new log file"; ACTIVE_LOG];
     // Assured to be a new one
@@ -112,14 +112,18 @@ $[not null COMMANDLINE_ARGUMENTS `t;
 
 /
 * @brief Write a function cal to a log file.
+* @param time {timestamp}: Time when the function was called on the caller side.
+* @param caller {symbol}: Caller of the function.
+* @param channel {symbol}: Context channel of the call.
+* @param topic {symbol}: Context topic of the call.
 * @param function {symbol}: Name of a remote function to call.
 * @param arguments {compound list}: Arguments of the function.
 \
-.cmng_api.log_call:{[function;arguments]
+.cmng_api.log_call:{[time;caller;channel;topic;function;arguments]
   // Check timestamp of data and roll out a new log file if necessary.
-  log_roll_check[data];
+  log_roll_check[time];
   // Write the data to the log file
-  ACTIVE_LOG_SOCKET enlist (`.cmng_api.log_call; function; arguments);
+  ACTIVE_LOG_SOCKET enlist (`.cmng_api.update; `CALL; (time; caller; channel; topic; function; arguments));
  };
 
 /
@@ -142,6 +146,9 @@ $[not null COMMANDLINE_ARGUMENTS `t;
 
 // Register as an upstream of RDB and Log Replayer
 .cmng_api.register_as_producer[COMMANDLINE_ARGUMENTS `user;] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
+
+// Register as a consumer of RDB
+.cmng_api.register_as_consumer[COMMANDLINE_ARGUMENTS `user; RDB_CHANNEL; enlist `log_request];
 
 // Start timer
 \t COMMANDLINE_ARGUMENTS[`t]

@@ -230,7 +230,7 @@ delete_socket_from_filters:{[socket_]
 * @param channel_ {symbol}: Channel to which call a function.
 * @param topic {symbol}: Topic of the call. Null symbol to broadcast to a channel.
 * @param function {symbol}: Name of a remote function to call.
-* @param arguments {compound list}: Arguments of the function.
+* @param arguments {any}: List of arguments of the function.
 * @param is_async {bool}: Flag to call the function asynchronously.
 * @return 
 * - null: If the call is asynchronous.
@@ -244,8 +244,11 @@ delete_socket_from_filters:{[socket_]
     // Specific topic in the channel
     raze CONSUMER_FILTERS[((channel_; topic); (channel_; `all))][`sockets]
   ];
-  // Publish to `system_log` channel
-  -25!(CONSUMER_FILTERS[(`system_log; `all)][`sockets]; `.cmng_api.log_call, function, arguments);
+  // built-in funtion is string
+  if[10h ~ type function; function: enlist function];
+  // Publish to `system_log` channel appending a timestamp, caller name, channel and topic
+  // Ensure `arguments` is a compound list
+  -25!(CONSUMER_FILTERS[(`system_log; `all)][`sockets]; `.cmng_api.log_call, .z.p, MY_ACCOUNT_NAME, channel_, topic, function, $[0h ~ type arguments; arguments; enlist arguments, (::)]);
   $[is_async;
     -25!(sockets; function, arguments);
     sockets @\: function, arguments

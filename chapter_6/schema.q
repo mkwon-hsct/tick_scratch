@@ -9,11 +9,6 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /
-* @brief List of tables sotred in database.
-\
-DATABASE_TABLES: enlist `MESSAGE_BOX;
-
-/
 * @brief Table for user chat messages.
 * @column time {timestamp}: Time when a message was received by a recipient.
 * @column topic {symbol}: Topic of the message.
@@ -21,3 +16,15 @@ DATABASE_TABLES: enlist `MESSAGE_BOX;
 * @column message {string}: Message itself.
 \
 MESSAGE_BOX: flip `time`topic`sender`message!"pss*"$\: ();
+
+/
+* @brief Table to store a remote function call.
+* @columns
+* - time {timestamp}: Time when the function was called on the caller side.
+* - caller {symbol}: Caller of the function. 
+* - channel {symbol}: Context channel of the call.
+* - topic {symbol}: Context topic of the call.
+* - function {symbol}: Name of a function.
+* - arguments {compound list}: Argumentf passed to the function.
+\
+CALL: flip `time`caller`channel`topic`function`arguments!"pss*"$\:();
