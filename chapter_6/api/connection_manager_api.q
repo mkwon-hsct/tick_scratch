@@ -283,14 +283,6 @@ delete_socket_from_filters:{[socket_]
 \
 .cmng_api.start_private_chat:{[name;target;is_requester;channel]
 
-  // Create a chat table and update function if they do not exist
-  if[not `MESSAGE_BOX in tables[];
-    MESSAGE_BOX:: flip `time`topic`sender`message!"pss*"$\: ();
-    .cmng_api.update: {[table;message]
-      table insert (.z.p; message 1; message 2; message 3)
-    }
-  ];
-
   // If this is a request, overwrite with a unique value generated on the connection manager.
   if[is_requester;
     result: CONNECTION_MANAGER_SOCKET (`.cmng.process_private_chat_request; name; target);

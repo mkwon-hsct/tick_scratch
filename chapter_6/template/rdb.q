@@ -7,7 +7,8 @@
 //                     Initial Setting                   //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-\l schema.q
+// Load schema
+\l schema/schema.q
 \l utility/load.q
 .load.load_file `:api/connection_manager_api.q;
 
@@ -18,9 +19,11 @@
 /
 * @brief Command line arguments. Valid keys are below:
 * - user {symbol}: Account name of this process.
-* - t {int}: Interval of the timer.
+* - topics {list of symbol}: List of topics to subscribe.
 \
 COMMANDLINE_ARGUMENTS: (@/)[.Q.opt .z.X; `user`topics; ({[arg] `$first arg}; {[topics] `$"," vs first topics})];
+// Set account name.
+MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 
 /
 * @brief Channel to subscribe to tickerplant. 
@@ -58,10 +61,10 @@ task_at_rolling_logfile:{[logfile_]
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 // Register as a downstream of Tickerplant
-.cmng_api.register_as_consumer[COMMANDLINE_ARGUMENTS `user; TICKERPLANT_CHANNEL; COMMANDLINE_ARGUMENTS `topics];
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; TICKERPLANT_CHANNEL; COMMANDLINE_ARGUMENTS `topics];
 
 // Register as a producer of RDB channel.
-.cmng_api.register_as_producer[COMMANDLINE_ARGUMENTS `user; TICKERPLANT_CHANNEL];
+.cmng_api.register_as_producer[MY_ACCOUNT_NAME; TICKERPLANT_CHANNEL];
 
 // Get a current log file.
 ACTIVE_LOG: first .cmng_api.call[TICKERPLANT_CHANNEL; `request; "get"; `ACTIVE_LOG; 0b];

@@ -20,6 +20,8 @@
 * - t {int}: Interval of the timer. Default value is 0.
 \
 COMMANDLINE_ARGUMENTS: (@/)[.Q.opt .z.X; `user`t; ({[arg] `$first arg}; {[arg] 0 ^ "I"$first arg})];
+// Set account name.
+MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 
 /
 * @brief Current active tickerplant log file. This value changes every hour.
@@ -54,7 +56,7 @@ LOG_REPLAYER_CHANNEL: `$"log_replayer_", string .z.h;;
 
 // Load schema file for batch processing and create a buffer for storing tables.
 if[COMMANDLINE_ARGUMENTS `t;
-  system "l schema.q";
+  system "l schema/schema.q";
   // @brief Buffer for storing tables.
   // @key list of symbol: Tuple of (table; topic).
   // @value table: Temporary table to store data.
@@ -142,13 +144,13 @@ $[COMMANDLINE_ARGUMENTS `t;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 // Overhear with `system_log` channel.
-.cmng_api.register_as_consumer[COMMANDLINE_ARGUMENTS `user; `system_log; enlist `all];
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; `system_log; enlist `all];
 
 // Register as an upstream of RDB and Log Replayer
-.cmng_api.register_as_producer[COMMANDLINE_ARGUMENTS `user;] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
+.cmng_api.register_as_producer[MY_ACCOUNT_NAME;] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
 
 // Register as a consumer of RDB
-.cmng_api.register_as_consumer[COMMANDLINE_ARGUMENTS `user; RDB_CHANNEL; enlist `log_request];
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; RDB_CHANNEL; enlist `log_request];
 
 // Start timer
 \t COMMANDLINE_ARGUMENTS[`t]
