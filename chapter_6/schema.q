@@ -9,6 +9,11 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /
+* @brief List of tables stored in a database.
+\
+TABLES_IN_DB: `MESSAGE_BOX`CALL;
+
+/
 * @brief Table for user chat messages.
 * @column time {timestamp}: Time when a message was received by a recipient.
 * @column topic {symbol}: Topic of the message.

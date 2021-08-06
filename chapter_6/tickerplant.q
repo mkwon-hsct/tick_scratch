@@ -17,9 +17,9 @@
 /
 * @brief Command line arguments. Valid keys are below:
 * - user {symbol}: Account name of this process.
-* - t {int}: Interval of the timer.
+* - t {int}: Interval of the timer. Default value is 0.
 \
-COMMANDLINE_ARGUMENTS: (@/)[.Q.opt .z.X; `user`t; ({[arg] `$first arg}; {[arg] "I"$first arg})];
+COMMANDLINE_ARGUMENTS: (@/)[.Q.opt .z.X; `user`t; ({[arg] `$first arg}; {[arg] 0 ^ "I"$first arg})];
 
 /
 * @brief Current active tickerplant log file. This value changes every hour.
@@ -88,7 +88,7 @@ log_roll_check:{[data]
 * @param table {symbol}: Name of a table to update.
 * @param data {compound list}: Tuple of (sender time; topic; sender name; data).
 \
-$[not null COMMANDLINE_ARGUMENTS `t;
+$[COMMANDLINE_ARGUMENTS `t;
   // Use timer for batch processing
   .cmng_api.update:{[table;data]
     // Check timestamp of data and roll out a new log file if necessary.
