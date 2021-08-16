@@ -32,4 +32,4 @@ MESSAGE_BOX: flip `time`topic`sender`message!"pss*"$\: ();
 * - function {symbol}: Name of a function.
 * - arguments {compound list}: Argumentf passed to the function.
 \
-CALL: flip `time`caller`channel`topic`function`arguments!"pss*"$\:();
+CALL: flip `time`caller`channel`topic`function`arguments!"pssss*"$\:();

@@ -10,14 +10,19 @@
 #  - timer: Tickerplant
 #  - topics: RDB
 
+## @brief Wrapper to use rlwrap.
+function launch(){
+  rlwrap q $@
+}
+
 if [[ $1 == "connection_manager" ]]; then
-  q template/connection_manager.q
+  launch template/connection_manager.q
 elif [[ $1 == "tickerplant" ]]; then
-  q template/tickerplant.q -p $2 -user $3 -t $4
+  launch template/tickerplant.q -p $2 -user $3 -t $4
 elif [[ $1 == "rdb" ]]; then
-  q template/rdb.q -p $2 -user $3 -topics $4
+  launch template/rdb.q -p $2 -user $3 -topics $4
 elif [[ $1 == "user" ]]; then
-  q template/user.q -p $2 -user $3
+  launch template/user.q -p $2 -user $3
 else
   echo -e "\[\e[32m\]Unknow process type\[\e[0m\]"
   exit 1

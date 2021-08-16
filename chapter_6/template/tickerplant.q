@@ -124,6 +124,8 @@ $[COMMANDLINE_ARGUMENTS `t;
 .cmng_api.log_call:{[time;caller;channel;topic;function;arguments]
   // Check timestamp of data and roll out a new log file if necessary.
   log_roll_check[time];
+  // Unify teh type of function name to symbol
+  if[10 = type function; function: `$function];
   // Write the data to the log file
   ACTIVE_LOG_SOCKET enlist (`.cmng_api.update; `CALL; (time; caller; channel; topic; function; arguments));
  };

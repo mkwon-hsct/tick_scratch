@@ -67,7 +67,7 @@ task_at_rolling_logfile:{[logfile_]
 .cmng_api.register_as_producer[MY_ACCOUNT_NAME; TICKERPLANT_CHANNEL];
 
 // Get a current log file.
-ACTIVE_LOG: first .cmng_api.call[TICKERPLANT_CHANNEL; `request; "get"; `ACTIVE_LOG; 0b];
+ACTIVE_LOG: first .cmng_api.call[TICKERPLANT_CHANNEL; `log_request; "get"; `ACTIVE_LOG; 0b];
 
 // Replay the log file
 .log.info["replay a log file"; ACTIVE_LOG];
