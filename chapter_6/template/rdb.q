@@ -26,7 +26,7 @@ COMMANDLINE_ARGUMENTS: (@/)[.Q.opt .z.X; `user`topics; ({[arg] `$first arg}; {[t
 MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 
 /
-* @brief Channel to subscribe to tickerplant. 
+* @brief Channel to subscribe to Tickerplant. 
 \
 TICKERPLANT_CHANNEL: `$"rdb_", string .z.h;
 

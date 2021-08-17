@@ -33,3 +33,17 @@ MESSAGE_BOX: flip `time`topic`sender`message!"pss*"$\: ();
 * - arguments {compound list}: Argumentf passed to the function.
 \
 CALL: flip `time`caller`channel`topic`function`arguments!"pssss*"$\:();
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                        Sort Key                       //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+/
+* @brief Keys to sort tables at intra-day write down. 
+* @key symbol: Table name.
+* @value symbol: Column name used to sort a table.
+\
+TABLE_SORT_KEY: .[!] flip ( /
+  (`MESSAGE_BOX; `topic); /
+  (`CALL; `caller) /
+ );
