@@ -90,7 +90,6 @@ save_table:{[table]
     // Delete records with the symbol
     ![table_;  enlist (=; sort_column_; enlist symbol); 0b; `symbol$()];
   }[table; sort_column] each symbols;
-
  };
 
 /
@@ -100,17 +99,20 @@ save_table:{[table]
 \
 move_to_HDB:{[date;table]
   // `:intraday_hdb/partition/table/
-  partitions: .Q.dd[INTRADAY_HDB_HOME] each date,/: key[INTRADAY_HDB_HOME],\: table, `;
+  partitions: .Q.dd[INTRADAY_HDB_HOME] each key[INTRADAY_HDB_HOME],\: table, `;
   // Target HDB partition
   target: .Q.dd[HDB_HOME; (date; table; `)];
   // Migrate all partitions to HDB.
   .log.info["move table to HDB"; table];
   {[target_;source]
     // Use `set` if the table does not exist; otherwise use `insert`.
-    $[() ~ key target_; set; insert][target_; select from get source];
+    $[() ~ key target_; set; insert][target_; select from source];
     // Delete unnecessary data
     system "rm -r ", 1 _ string source;
   }[target] each partitions;
+  // Symbol column with which table is partitioned.
+  sort_column: TABLE_SORT_KEY table;
+  target_column set `p#get target_column: .Q.dd[HDB_HOME; (date; table; sort_column)];
  };
 
 /
@@ -119,13 +121,14 @@ move_to_HDB:{[date;table]
 \
 task_at_rolling_logfile:{[logfile]
   // Replay log file.
+  .log.info["replay log file"; logfile];
   -11!logfile;
   // Save tables
   save_table each TABLES_IN_DB;
   // Fill missing tables
   .Q.chk INTRADAY_HDB_HOME;
-  // Parse yyyymmdd_HH.log into (date; hour);
-  date_hour: "DI"$' "_" vs first "." vs string[logfile];
+  // Parse yyyymmdd_HH.log into (date; hour) after removing preceding ":";
+  date_hour: "DI"$' "_" vs first "." vs 1 _ string[logfile];
   // Move Intra-day HDB data to HDB at EOD.
   if[date_hour[1] = EOD_TIME-1;
     .log.info["End of day"; ::];

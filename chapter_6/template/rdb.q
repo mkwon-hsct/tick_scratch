@@ -46,19 +46,34 @@ TICKERPLANT_CHANNEL: `$"rdb_", string .z.h;
  };
 
 /
+* @brief Add grouping attribute to a table.
+* @param table {symbol}: Table name.
+\
+add_grouping_attribute:{[table]
+  grouping_column: TABLE_SORT_KEY table;
+  ![table; (); 0b; enlist[grouping_column]!enlist (`g#; grouping_column)];
+ };
+
+/
 * @brief Delete data in tables at the rolling of log file.
 * @param logfile_ {symbol}: Handle to the log file cut off by the tickerplant. Not used on RDB side.
 \
 task_at_rolling_logfile:{[logfile_]
   {[table]
+    // Make the table empty.
     .log.info["delete data from table"; table];
     delete from table;
+    // Assign grouping attribute again.
+    add_grouping_attribute table;
   } each TABLES_IN_DB;
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+// Add grouping attribute to tables
+add_grouping_attribute each TABLES_IN_DB;
 
 // Register as a downstream of Tickerplant
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; TICKERPLANT_CHANNEL; COMMANDLINE_ARGUMENTS `topics];
