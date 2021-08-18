@@ -85,14 +85,8 @@ save_table:{[table]
     partition: .Q.dd[HDB_HOME; `sym]?symbol;
     // Save as a splayed table under the partition.
     target: .Q.dd[INTRADAY_HDB_HOME; (`int$partition; table_; `)];
-
-    target $[() ~ key target;
-      // Target does not exist
-      set;
-      // Target already exists
-      insert
-    ] .Q.en[HDB_HOME; ?[table_; enlist (=; sort_column_; enlist symbol); 0b; ()]];
-    
+    // Use `set` if the table does not exist; otherwise use `insert`.
+    $[() ~ key target; set; insert][target; .Q.en[HDB_HOME; ?[table_; enlist (=; sort_column_; enlist symbol); 0b; ()]]];
     // Delete records with the symbol
     ![table_;  enlist (=; sort_column_; enlist symbol); 0b; `symbol$()];
   }[table; sort_column] each symbols;
@@ -106,43 +100,41 @@ save_table:{[table]
 \
 move_to_HDB:{[date;table]
   // `:intraday_hdb/partition/table/
-  partitions: .Q.dd[INTRADAY_HDB_HOME] each key[INTRADAY_HDB_HOME],/: table, `;
+  partitions: .Q.dd[INTRADAY_HDB_HOME] each date,/: key[INTRADAY_HDB_HOME],\: table, `;
   // Target HDB partition
   target: .Q.dd[HDB_HOME; (date; table; `)];
   // Migrate all partitions to HDB.
   .log.info["move table to HDB"; table];
   {[target_;source]
-    target $[() ~ key target;
-      // Target does not exist
-      set;
-      // Target already exists
-      insert
-    ] get source;
+    // Use `set` if the table does not exist; otherwise use `insert`.
+    $[() ~ key target_; set; insert][target_; select from get source];
     // Delete unnecessary data
     system "rm -r ", 1 _ string source;
-  } each partitions;
+  }[target] each partitions;
  };
 
 /
 * @brief Delete data in tables at the rolling of log file.
-* @param logfile {symbol}: Handle to the log file cut off by the tickerplant. Not used on RDB side.
+* @param logfile {symbol}: Handle to the log file cut off by the tickerplant.
 \
 task_at_rolling_logfile:{[logfile]
   // Replay log file.
   -11!logfile;
   // Save tables
   save_table each TABLES_IN_DB;
+  // Fill missing tables
+  .Q.chk INTRADAY_HDB_HOME;
   // Parse yyyymmdd_HH.log into (date; hour);
   date_hour: "DI"$' "_" vs first "." vs string[logfile];
   // Move Intra-day HDB data to HDB at EOD.
-  if[date_hour[1] = EOD_TIME -1;
+  if[date_hour[1] = EOD_TIME-1;
     .log.info["End of day"; ::];
     move_to_HDB[date_hour 0] each TABLES_IN_DB;
+    // Fill missing tables
+    .Q.chk INTRADAY_HDB_HOME;
     // Notify HDB the completion of EOD procedure.
     .cmng_api.call[HDB_CHANNEL; `; `reload; enlist (::); 1b]
   ];
-  // Fill missing tables
-  .Q.chk INTRADAY_HDB_HOME;
   // Notify Intra-day HDB the completion of disk write.
   .cmng_api.call[INTRADAY_HDB_CHANNEL; `; `reload; enlist (::); 1b];
  };

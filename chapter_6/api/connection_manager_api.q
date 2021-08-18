@@ -87,7 +87,7 @@ add_consumer_filter:{[channel;topics;remote;socket]
   .log.info["add a consumer to filters"; filters];
   {[channel;topic;socket]
     // Replace the value (`sockets![list of int]) with the new value of the same type.
-    CONSUMER_FILTERS[(channel; topic)]:@[CONSUMER_FILTERS[(channel; topic)]; `sockets; ,; socket];
+    CONSUMER_FILTERS[(channel; topic)]: @[CONSUMER_FILTERS[(channel; topic)]; `sockets; {[existing;new] distinct existing, new}; socket];
   } ./: filters;
  };
 

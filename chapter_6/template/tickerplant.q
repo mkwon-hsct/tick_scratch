@@ -77,7 +77,10 @@ log_roll_check:{[data]
     hclose ACTIVE_LOG_SOCKET;
     // Send a signal to RDB and Log Replayer with the name of the current log file
     .cmng_api.call[; `; `task_at_rolling_logfile; ACTIVE_LOG; 1b] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
+    // Roll out a new log file
     ACTIVE_LOG:: hsym `$(string[`date$NEXT_LOG_ROLL_TIME] except "."), "_", string[`hh$NEXT_LOG_ROLL_TIME], ".log";
+    // Update next log roll time
+    NEXT_LOG_ROLL_TIME +: 01:00:00;
     .log.info["roll out a new log file"; ACTIVE_LOG];
     // Assured to be a new one
     ACTIVE_LOG set ();
