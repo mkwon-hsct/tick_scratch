@@ -12,9 +12,9 @@
 
 ## @brief Wrapper to use rlwrap.
 function launch(){
-  ## process_yyyymmdd_HHMMSS.log
-  process_type=$(echo $1 | tr template/ log/ | tr -d .q);
-  logfile="${process_type}_$(date +%Y%m%d_%H%M%S).log";
+  ## process_yyyymmdd_HHMMSSNNNNNNNNN.log
+  process_type=$(echo $1 | sed 's/template/log/g' | tr -d .q);
+  logfile="${process_type}_$(date +%Y%m%d_%H%M%S%N).log";
   ## Run on the background
   nohup q $@ < /dev/null >> $logfile 2>&1 &
 }

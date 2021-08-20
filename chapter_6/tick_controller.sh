@@ -42,7 +42,9 @@ function terminate(){
     }
   }');
   ## Terminate
-  kill ${PROCESS_ID};
+  if [[ ${PROCESS_ID} != "" ]]; then
+    kill ${PROCESS_ID};
+  fi
 }
 
 ## Launch or terminate processes.
@@ -51,14 +53,26 @@ if [[ $1 == "start" ]]; then
   do
     ## Launch process
     launch $line;
-    sleep "0.2";
+    ## Wait until process becomes ready
+    if [[ $(echo $line | awk -F";" '{print $1}') == "tickerplant" ]]; then
+      TARGET_PORT=$(echo $line | awk -F";" '{print $2}');
+      RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping);
+      echo $RESPONSE;
+      while [[ ${RESPONSE} != "alive" ]]
+      do
+        RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping);
+        sleep "1";
+      done
+    else
+      sleep "0.1";
+    fi
   done < $CONFIG
 elif [[ $1 == "stop" ]]; then
   tac $CONFIG | while read line
   do
     ## Terminate process
     terminate $line;
-    sleep "0.2";
+    sleep "0.1";
   done
 else
   echo -e "\[\e[32m\]Unknown operation: $1\[\e[m\]";

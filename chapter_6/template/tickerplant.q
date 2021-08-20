@@ -8,6 +8,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 \l utility/load.q
+.load.load_file `:utility/ping.q;
 .load.load_file `:api/connection_manager_api.q;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -52,7 +53,12 @@ RDB_CHANNEL: `$"rdb_", string .z.h;
 /
 * @brief Channel to send a signal to Log Replayer. 
 \
-LOG_REPLAYER_CHANNEL: `$"log_replayer_", string .z.h;;
+LOG_REPLAYER_CHANNEL: `$"log_replayer_", string .z.h;
+
+/
+* @brief Channel to subscribe to logfile request from RDB. 
+\
+LOGFILE_REQUEST_CHANNEL: `$"logfile_request_", string .z.h;
 
 // Load schema file for batch processing and create a buffer for storing tables.
 if[COMMANDLINE_ARGUMENTS `t;
@@ -155,7 +161,7 @@ $[COMMANDLINE_ARGUMENTS `t;
 .cmng_api.register_as_producer[MY_ACCOUNT_NAME;] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
 
 // Register as a consumer of RDB
-.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; RDB_CHANNEL; enlist `log_request];
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; LOGFILE_REQUEST_CHANNEL; enlist `log_request];
 
 // Start timer
 \t COMMANDLINE_ARGUMENTS[`t]

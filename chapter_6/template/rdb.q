@@ -30,6 +30,11 @@ MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 \
 TICKERPLANT_CHANNEL: `$"rdb_", string .z.h;
 
+/
+* @brief Channel to produce logfile request to Tickerplant. 
+\
+LOGFILE_REQUEST_CHANNEL: `$"logfile_request_", string .z.h;
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                   Private Functions                   //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -78,11 +83,11 @@ add_grouping_attribute each TABLES_IN_DB;
 // Register as a downstream of Tickerplant
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; TICKERPLANT_CHANNEL; COMMANDLINE_ARGUMENTS `topics];
 
-// Register as a producer of RDB channel.
-.cmng_api.register_as_producer[MY_ACCOUNT_NAME; TICKERPLANT_CHANNEL];
+// Register as a producer of logfile request channel.
+.cmng_api.register_as_producer[MY_ACCOUNT_NAME; LOGFILE_REQUEST_CHANNEL];
 
 // Get a current log file.
-ACTIVE_LOG: first .cmng_api.call[TICKERPLANT_CHANNEL; `log_request; "get"; `ACTIVE_LOG; 0b];
+ACTIVE_LOG: first .cmng_api.call[LOGFILE_REQUEST_CHANNEL; `log_request; "get"; `ACTIVE_LOG; 0b];
 
 // Replay the log file
 .log.info["replay a log file"; ACTIVE_LOG];

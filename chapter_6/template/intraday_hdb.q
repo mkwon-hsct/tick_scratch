@@ -43,7 +43,8 @@ load_intraday_HDB:{[]
   .log.info["load Intraday-HDB"; ::];
   system "l ", getenv `KDB_INTRADAY_HDB_HOME;
   // Reload sym file in HDB.
-  sym:: get .Q.dd[HDB_HOME; `sym];
+  // HDB can be empty at first.
+  sym:: @[get; .Q.dd[HDB_HOME; `sym]; {[error] .log.error[error; ::]}];
  };
 
 /
