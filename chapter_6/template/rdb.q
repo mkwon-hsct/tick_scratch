@@ -58,7 +58,7 @@ add_grouping_attribute:{[table]
 * @brief Delete data in tables at the rolling of log file.
 * @param logfile_ {symbol}: Handle to the log file cut off by the tickerplant. Not used on RDB side.
 \
-task_at_rolling_logfile:{[logfile_]
+.tickerplant.task_on_rolling_logfile:{[logfile_]
   {[table]
     // Make the table empty.
     .log.info["delete data from table"; table];

@@ -76,7 +76,7 @@ log_roll_check:{[data]
     // Roll out a new log file
     hclose ACTIVE_LOG_SOCKET;
     // Send a signal to RDB and Log Replayer with the name of the current log file
-    .cmng_api.call[; `; `task_at_rolling_logfile; ACTIVE_LOG; 1b] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
+    .cmng_api.call[; `; `.tickerplant.task_on_rolling_logfile; ACTIVE_LOG; 1b] each (RDB_CHANNEL; LOG_REPLAYER_CHANNEL);
     // Roll out a new log file
     ACTIVE_LOG:: hsym `$(string[`date$NEXT_LOG_ROLL_TIME] except "."), "_", string[`hh$NEXT_LOG_ROLL_TIME], ".log";
     // Update next log roll time
@@ -116,7 +116,7 @@ $[COMMANDLINE_ARGUMENTS `t;
  ];
 
 /
-* @brief Write a function cal to a log file.
+* @brief Write a function call to a log file.
 * @param time {timestamp}: Time when the function was called on the caller side.
 * @param caller {symbol}: Caller of the function.
 * @param channel {symbol}: Context channel of the call.

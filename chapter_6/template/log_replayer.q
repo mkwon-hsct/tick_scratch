@@ -119,7 +119,7 @@ move_to_HDB:{[date;table]
 * @brief Delete data in tables at the rolling of log file.
 * @param logfile {symbol}: Handle to the log file cut off by the tickerplant.
 \
-task_at_rolling_logfile:{[logfile]
+.tickerplant.task_on_rolling_logfile:{[logfile]
   // Replay log file.
   .log.info["replay log file"; logfile];
   -11!logfile;
@@ -136,10 +136,10 @@ task_at_rolling_logfile:{[logfile]
     // Fill missing tables
     .Q.chk INTRADAY_HDB_HOME;
     // Notify HDB the completion of EOD procedure.
-    .cmng_api.call[HDB_CHANNEL; `; `reload; enlist (::); 1b]
+    .cmng_api.call[HDB_CHANNEL; `; `.logreplay.reload_on_disk_write; enlist (::); 1b]
   ];
   // Notify Intra-day HDB the completion of disk write.
-  .cmng_api.call[INTRADAY_HDB_CHANNEL; `; `reload; enlist (::); 1b];
+  .cmng_api.call[INTRADAY_HDB_CHANNEL; `; `.logreplay.reload_on_disk_write; enlist (::); 1b];
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//

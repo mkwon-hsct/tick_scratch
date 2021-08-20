@@ -12,7 +12,11 @@
 
 ## @brief Wrapper to use rlwrap.
 function launch(){
-  rlwrap q $@
+  ## process_yyyymmdd_HHMMSS.log
+  process_type=$(echo $1 | tr template/ log/ | tr -d .q);
+  logfile="${process_type}_$(date +%Y%m%d_%H%M%S).log";
+  ## Run on the background
+  nohup q $@ < /dev/null >> $logfile 2>&1 &
 }
 
 ## Load `.env`
@@ -25,6 +29,10 @@ elif [[ $1 == "tickerplant" ]]; then
   launch template/tickerplant.q -p $2 -user $3 -t $4
 elif [[ $1 == "rdb" ]]; then
   launch template/rdb.q -p $2 -user $3 -topics $4
+elif [[ $1 == "hdb" ]]; then
+  launch template/hdb.q -p $2 -user $3
+elif [[ $1 == "intraday_hdb" ]]; then
+  launch template/intraday_hdb.q -p $2 -user $3
 elif [[ $1 == "log_replayer" ]]; then
   launch template/log_replayer.q -p $2 -user $3
 elif [[ $1 == "user" ]]; then
