@@ -11,6 +11,7 @@
 \l schema/schema.q
 \l utility/load.q
 .load.load_file `:api/connection_manager_api.q;
+.load.load_file `:api/gateway_api.q;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                    Global Variables                   //
@@ -92,3 +93,6 @@ ACTIVE_LOG: first .cmng_api.call[LOGFILE_REQUEST_CHANNEL; `log_request; "get"; `
 // Replay the log file
 .log.info["replay a log file"; ACTIVE_LOG];
 -11!ACTIVE_LOG;
+
+// Register as a downstream of Gateway
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL; enlist `all];

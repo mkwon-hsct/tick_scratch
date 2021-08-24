@@ -226,10 +226,26 @@ delete_socket_from_filters:{[socket_]
  };
 
 /
+* @brief Publish to `system_log` channel appending a timestamp, caller name, channel and topic.
+* @param sockets {list of int}: Target sockets.
+* @param time {timestamp}: Publish time of this log message.
+* @param channel {symbol}: Channel of the call.
+* @param topic {symbol}: Topic of the call.
+* @param function {symbol}: Name of the called function.
+* @param arguments {any}: List of arguments of the function.
+\
+.cmng_api.log_call:{[sockets;time;channel;topic;function;arguments]
+  // Ensure `arguments` is a compound list
+  -25!(sockets; `.cmng_api.log_call, time, MY_ACCOUNT_NAME, channel, topic, function, $[0h ~ type arguments; arguments; arguments, (::)]);
+ };
+
+/
 * @brief Call a remote function applying a filter to a channel and topic.
 * @param channel_ {symbol}: Channel to which call a function.
 * @param topic {symbol}: Topic of the call. Null symbol to broadcast to a channel.
-* @param function {symbol}: Name of a remote function to call.
+* @param function {variable}:
+* - symbol: Name of a remote function to call.
+* - string: Name of built-in function to call.
 * @param arguments {any}: List of arguments of the function.
 * @param is_async {bool}: Flag to call the function asynchronously.
 * @return 
@@ -246,9 +262,8 @@ delete_socket_from_filters:{[socket_]
   ];
   // built-in funtion is string
   if[10h ~ type function; function: enlist function];
-  // Publish to `system_log` channel appending a timestamp, caller name, channel and topic
-  // Ensure `arguments` is a compound list
-  -25!(CONSUMER_FILTERS[(`system_log; `all)][`sockets]; `.cmng_api.log_call, .z.p, MY_ACCOUNT_NAME, channel_, topic, function, $[0h ~ type arguments; arguments; enlist arguments, (::)]);
+  // Publish to `system_log` channel
+  .cmng_api.log_call[CONSUMER_FILTERS[(`system_log; `all)][`sockets]; .z.p; channel_; topic; function; arguments];
   $[is_async;
     -25!(sockets; function, arguments);
     sockets @\: function, arguments

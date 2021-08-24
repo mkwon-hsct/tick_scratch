@@ -24,6 +24,8 @@ COMMANDLINE_ARGUMENTS: @[.Q.opt .z.X; `user; {[arg] `$first arg}];
 // Set account name.
 MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 
+GATEWAY_CHANNEL: `user_query;
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                   Private Functions                   //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -31,3 +33,9 @@ MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 .cmng_api.update: {[table;message]
   table insert (.z.p; message 1; message 2; message 3);
  };
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                     Start Process                     //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+.cmng_api.register_as_producer[MY_ACCOUNT_NAME; `user_query];

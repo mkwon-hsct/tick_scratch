@@ -9,6 +9,7 @@
 
 \l utility/load.q
 .load.load_file `:api/connection_manager_api.q;
+.load.load_file `:api/gateway_api.q;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                    Global Variables                   //
@@ -50,6 +51,9 @@ load_HDB:{[]
 
 // Register as a downstream of Log Replayer
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; LOG_REPLAYER_CHANNEL; enlist `all];
+
+// Register as a downstream of Gateway
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL; enlist `all];
 
 // Load HDB directory.
 load_HDB[];

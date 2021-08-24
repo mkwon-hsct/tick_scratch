@@ -33,6 +33,8 @@ elif [[ $1 == "hdb" ]]; then
   launch template/hdb.q -p $2 -user $3
 elif [[ $1 == "intraday_hdb" ]]; then
   launch template/intraday_hdb.q -p $2 -user $3
+elif [[ $1 == "gateway" ]]; then
+  launch template/gateway.q -p $2 -user $3
 elif [[ $1 == "log_replayer" ]]; then
   launch template/log_replayer.q -p $2 -user $3
 elif [[ $1 == "user" ]]; then

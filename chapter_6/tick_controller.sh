@@ -57,7 +57,6 @@ if [[ $1 == "start" ]]; then
     if [[ $(echo $line | awk -F";" '{print $1}') == "tickerplant" ]]; then
       TARGET_PORT=$(echo $line | awk -F";" '{print $2}');
       RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping);
-      echo $RESPONSE;
       while [[ ${RESPONSE} != "alive" ]]
       do
         RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping);
