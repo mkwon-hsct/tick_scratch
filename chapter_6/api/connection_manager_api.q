@@ -227,16 +227,15 @@ delete_socket_from_filters:{[socket_]
 
 /
 * @brief Publish to `system_log` channel appending a timestamp, caller name, channel and topic.
-* @param sockets {list of int}: Target sockets.
 * @param time {timestamp}: Publish time of this log message.
 * @param channel {symbol}: Channel of the call.
 * @param topic {symbol}: Topic of the call.
 * @param function {symbol}: Name of the called function.
 * @param arguments {any}: List of arguments of the function.
 \
-.cmng_api.log_call:{[sockets;time;channel;topic;function;arguments]
+.cmng_api.publish_call_to_system_log:{[time;channel;topic;function;arguments]
   // Ensure `arguments` is a compound list
-  -25!(sockets; `.cmng_api.log_call, time, MY_ACCOUNT_NAME, channel, topic, function, $[0h ~ type arguments; arguments; arguments, (::)]);
+  -25!(CONSUMER_FILTERS[(`system_log; `all)][`sockets]; `.cmng_api.log_call, time, MY_ACCOUNT_NAME, channel, topic, function, enlist $[0h ~ type arguments; arguments; arguments, (::)]);
  };
 
 /
@@ -263,7 +262,7 @@ delete_socket_from_filters:{[socket_]
   // built-in funtion is string
   if[10h ~ type function; function: enlist function];
   // Publish to `system_log` channel
-  .cmng_api.log_call[CONSUMER_FILTERS[(`system_log; `all)][`sockets]; .z.p; channel_; topic; function; arguments];
+  .cmng_api.publish_call_to_system_log[.z.p; channel_; topic; function; arguments];
   $[is_async;
     -25!(sockets; function, arguments);
     sockets @\: function, arguments
@@ -328,5 +327,5 @@ delete_socket_from_filters:{[socket_]
 * @param message {string}: Text message to send.
 \
 .cmng_api.publish_private: {[target;message]
-  .cmng_api.publish[PRIVATE_MESSAGE_CHANNEL target; `user_chat; `MESSAGE_BOX; enlist message]
+  .cmng_api.publish[PRIVATE_MESSAGE_CHANNEL target; `user_chat; `MESSAGE_BOX; message]
  };

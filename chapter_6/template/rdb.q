@@ -92,7 +92,17 @@ ACTIVE_LOG: first .cmng_api.call[LOGFILE_REQUEST_CHANNEL; `log_request; "get"; `
 
 // Replay the log file
 .log.info["replay a log file"; ACTIVE_LOG];
+// Filter
+.z.ps:{[message]
+  // Execute messages with topics to which this process is subscribing
+  if[any COMMANDLINE_ARGUMENTS[`topics] in last message;
+    value message
+  ];
+ };
+// Replay
 -11!ACTIVE_LOG;
+// Discard the filter
+\x .z.ps
 
 // Register as a downstream of Gateway
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL; enlist `all];

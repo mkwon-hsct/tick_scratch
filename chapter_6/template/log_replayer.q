@@ -40,6 +40,11 @@ INTRADAY_HDB_CHANNEL: `$"intraday_hdb_", string .z.h;
 HDB_CHANNEL: `$"hdb_", string .z.h;
 
 /
+* @brief Channel to notify of log rolling to Gateway. 
+\
+GATEWAY_CHANNEL: `$"query_block_notify_", string .z.h;
+
+/
 * @brief Path to Intra-day HDB directory.
 \
 INTRADAY_HDB_HOME: hsym `$getenv[`KDB_INTRADAY_HDB_HOME];
@@ -123,7 +128,8 @@ move_to_HDB:{[date;table]
   // Replay log file.
   .log.info["replay log file"; logfile];
   -11!logfile;
-  // Save tables
+  // Block Intra-day HDB and save tables
+  .cmng_api.call[GATEWAY_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (INTRADAY_HDB_CHANNEL; 1b); 1b];
   save_table each TABLES_IN_DB;
   // Fill missing tables
   .Q.chk INTRADAY_HDB_HOME;
@@ -132,14 +138,20 @@ move_to_HDB:{[date;table]
   // Move Intra-day HDB data to HDB at EOD.
   if[date_hour[1] = EOD_TIME-1;
     .log.info["End of day"; ::];
+    // Block HDB and migrate to HDB
+    .cmng_api.call[GATEWAY_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (HDB_CHANNEL; 1b); 1b];
     move_to_HDB[date_hour 0] each TABLES_IN_DB;
     // Fill missing tables
     .Q.chk INTRADAY_HDB_HOME;
     // Notify HDB the completion of EOD procedure.
-    .cmng_api.call[HDB_CHANNEL; `; `.logreplay.reload_on_disk_write; enlist (::); 1b]
+    .cmng_api.call[HDB_CHANNEL; `; `.logreplay.reload_on_disk_write; enlist (::); 1b];
+    // Unlock HDB
+    .cmng_api.call[GATEWAY_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (HDB_CHANNEL; 0b); 1b]
   ];
   // Notify Intra-day HDB the completion of disk write.
   .cmng_api.call[INTRADAY_HDB_CHANNEL; `; `.logreplay.reload_on_disk_write; enlist (::); 1b];
+  // Unlock Intra-day HDB
+  .cmng_api.call[GATEWAY_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (INTRADAY_HDB_CHANNEL; 0b); 1b];
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -149,8 +161,11 @@ move_to_HDB:{[date;table]
 // Register as a downstream of Tickerplant
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; TICKERPLANT_CHANNEL; enlist `all];
 
-// Register as a producer of Intraday-HDB channel.
+// Register as an upstream of Intraday-HDB channel.
 .cmng_api.register_as_producer[MY_ACCOUNT_NAME; INTRADAY_HDB_CHANNEL];
 
-// Register as a producer of HDB channel.
+// Register as an upstream of HDB channel.
 .cmng_api.register_as_producer[MY_ACCOUNT_NAME; HDB_CHANNEL];
+
+// Register as an upstream of Gateway
+.cmng_api.register_as_producer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL];

@@ -32,7 +32,7 @@ EXECUTION_FAILURE: `EXECUTION_STATUS$`failure;
 /
 * @brief Table to manage status of databases.
 * @keys Database sockets.
-* @values Flag of whether a database is blocked.
+* @values Flag of whether a database is available.
 \
 DATABASE_AVAILABILITY: (`int$())!`boolean$();
 
@@ -78,9 +78,9 @@ QUERY_ID: 0;
 LATEST_LOG_ROLLING_TIME: .z.d+`time$1000*60*60*`hh$.z.t;
 
 /
-* @brief Channel to produce messages to Intra-day HDB. 
+* @brief Channel to receive notification from Log Replayer. 
 \
-LOG_REPLAYER_CHANNEL: `$"query_block_notify_", string .z.h;
+LOG_REPLAYER_CHANNEL: `query_block_notify;
 
 /
 * @brief Channel to send a query to databases.
@@ -100,6 +100,19 @@ USER_CHANNEL: `user_query;
 
 /
 * @brief Select database which is not blocked and has minimum queue and at which
+*  an expensive query (more than 10 seconds) is not running.
+* @param channel_ {symbol}: Channel of a database to lock or unlock.
+* @param is_lock {bool}: Flag of whether to lock the database.
+\
+.logreplay.task_on_rolling_logfile:{[channel_;is_lock]
+  target: exec sockets from CONSUMER_FILTERS where channel = channel_;
+  DATABASE_AVAILABILITY[target]: $[is_lock; 0b; 1b];
+  // Update latest log rolling time when intraday-HDB is unlocked
+  if[(channel = INTRADAY_HDB_CHANNEL) and not is_lock; LATEST_LOG_ROLLING_TIME +: 01:00:00];
+ };
+
+/
+* @brief Select database which is not blocked and has minimum queue and at which
 *  an expensive query (more than 10 seconds) is not running.  
 * @param channel_ {symbol}: Channel to which query is sent.
 * @param topic {symbol}: Topic incuded in the query.
@@ -107,7 +120,9 @@ USER_CHANNEL: `user_query;
 * - int: Socket of a database.
 \
 select_database:{[channel;topic]
+  show "select";
   sockets: raze CONSUMER_FILTERS[((channel; topic); (channel; `all))][`sockets];
+  show sockets;
   sockets where DATABASE_AVAILABILITY sockets
  };
 
@@ -120,6 +135,7 @@ select_database:{[channel;topic]
 * - int: Socket of a database.
 \
 enqueue_query:{[channel;time_range;topic]
+  show "enqueue";
   candidates: raze CONSUMER_FILTERS[((channel; topic); (channel; `all))][`sockets];
   `QUERY_QUEUE insert (QUERY_ID; topic; candidates; channel; time_range);
  }
@@ -135,11 +151,13 @@ enqueue_query:{[channel;time_range;topic]
 \
 register_and_send_query:{[target;channel;topics;time_range;function;arguments]
   // Register sockets
-  QUERY_STATUS[QUERY_ID,/: target]: `status`result!(0b; ::);
+  `QUERY_STATUS upsert/: (QUERY_ID,/: target),\: (0b; ::);
+  // Block database
+  DATABASE_AVAILABILITY[target]: 0b;
   // Send the query to databases
-  -25!(target; function, arguments, enlist time_range);
+  -25!(target; (`.gateway.execute; function; arguments; time_range));
   // Publish to `system_log` channel
-  .cmng_api.log_call[CONSUMER_FILTERS[(`system_log; `all)][`sockets]; .z.p; channel; ; `.gateway.execute; (function; arguments)] each topics;
+  .cmng_api.publish_call_to_system_log[.z.p; channel; ; `.gateway.execute; (function; arguments)] each topics;
  };
 
 /
@@ -151,10 +169,15 @@ register_and_send_query:{[target;channel;topics;time_range;function;arguments]
 * @param time_range {timestamp list}: Start time and end time of the queried range. 
 \
 send_or_enqueue:{[topics;function;arguments;channel;time_range]
-  queued: where (`int$()) ~/: topics!select_database[channel] each topics;
-  sent: queued _ topics;
+  // Queries which has no available database to send
+  queued: where (`int$()) ~/: target: topics!select_database[channel] each topics;
+  show target;
+  show "queued", .Q.s1 queued;
+  // Other queries will be sent
+  sent: queued _ target;
+  show "sent", .Q.s1 sent;
   // Enqueue topics which cannot be sent.
-  enqueue_query each queued;
+  enqueue_query[channel;time_range] each queued;
   // Target sockets
   sent: distinct raze value first each sent;
   // Link a query to query ID and send it.
@@ -202,21 +225,27 @@ send_or_enqueue:{[topics;function;arguments;channel;time_range]
         // HDB is included
         [
           // Set Intra-day HDB task
-          intraday_hdb_time_range: (.z.d+00:00:00; LATEST_LOG_ROLLING_TIME);
-          target[INTRADAY_HDB_CHANNEL]: intraday_hdb_time_range;
+          // There is no data within an hour from EOD
+          if[not LATEST_LOG_ROLLING_TIME = .z.d+00:00:00;
+            intraday_hdb_time_range: (.z.d+00:00:00; LATEST_LOG_ROLLING_TIME);
+            target[INTRADAY_HDB_CHANNEL]: intraday_hdb_time_range
+          ];
           // Set HDB task
           hdb_time_range: (time_range 0; .z.d+00:00:00);
-          target[INTRADAY_HDB_CHANNEL]: hdb_time_range;
+          target[HDB_CHANNEL]: hdb_time_range;
         ]
       ]
     ];
     // LATEST_LOG_ROLLING_TIME > time_range 1;
     // RDB is not included
     $[.z.d <= time_range 0;
-      // HDB is not included
+      // Only Intra-day HDB
       // Set Intra-day HDB task
       target[INTRADAY_HDB_CHANNEL]: time_range;
-      // Intra-HDB is not included
+      .z.d > time_range 1;
+      // Only HDB
+      target[HDB_CHANNEL]: time_range;
+      // Mixture of HDB and Intra-day HDB
       [
         // Set Intra-day HDB task
         intraday_hdb_time_range: (.z.d+00:00:00; time_range 1);
@@ -228,33 +257,36 @@ send_or_enqueue:{[topics;function;arguments;channel;time_range]
     ]
   ];
 
-  show "hey";
-  send_or_enqueue[topics] ./: flip (key; value) @\: target;
-  show "hoo";
+  show target;
+  send_or_enqueue[topics;function;arguments] ./: flip (key; value) @\: target;
   QUERY_ID+:1;
  };
 
 /
-* @param result {any}: Query result from a database.
 * @param error_indicator {bool}: Flag of whether error happenned at the execution.
+* @param result {any}: Query result from a database.
 \
-.gateway.callback:{[result;error_indicator]
+.gateway.callback:{[error_indicator;result]
+  // Get query ID.
+  query_id: exec first id from QUERY_STATUS where socket = .z.w;
+
   // Client cannot send multiple queries since it is blocked.
-  update result: result, error: error_indicator from `QUERY_STATUS where socket = .z.w;
+  `QUERY_STATUS upsert (query_id; .z.w; error_indicator; result);
+
   // Get query ID.
   query_id: exec first id from QUERY_STATUS where socket = .z.w;
 
   // Part of the query is remained in a queue
   is_queued: count select i from QUERY_QUEUE where id = query_id;
 
-  if[(all not (::) ~ last error_flags_and_results: flip exec (error; result) from QUERY_STATUS where id = query_id) and not is_queued;
+  if[(all not (::) ~/: last error_flags_and_results: exec (error; result) from QUERY_STATUS where id = query_id) and not is_queued;
     // All results were back
     $[all not first error_flags_and_results;
       // No error
       [
         // Merge results
         merged: @[QUERY_MERGE_INSTRUCTION[query_id]; last error_flags_and_results; {[error] (EXECUTION_FAILURE; error)}];
-        $[EXECUTION_FAILURE in merged;
+        $[any EXECUTION_FAILURE ~/: merged;
           // Merge failed
           -30!(QUERY_TO_CLIENT query_id; 1b; merged 1);
           // Merge succeeded
@@ -277,7 +309,7 @@ send_or_enqueue:{[topics;function;arguments;channel;time_range]
   $[0 = count raze value queries;
     // No queries to process
     // Unlock the database
-    DATABASE_AVAILABILITY[.z.w]: 0b;
+    DATABASE_AVAILABILITY[.z.w]: 1b;
     // Link a query to query ID and send it.
     register_and_send_query[enlist .z.w; channel; queries[`topic]; queries[`time_range]; function; arguments];
   ]
@@ -289,5 +321,8 @@ send_or_enqueue:{[topics;function;arguments;channel;time_range]
 
 // Register as an upstream of databases.
 .cmng_api.register_as_producer[MY_ACCOUNT_NAME] each (RDB_CHANNEL; INTRADAY_HDB_CHANNEL; HDB_CHANNEL);
+// Set all databases available. First element is a dummy record to keep its value type.
+DATABASE_AVAILABILITY[raze 1 _ exec sockets from CONSUMER_FILTERS]: 1b;
 
+// Register as an downstream of user process
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; USER_CHANNEL; enlist `all];

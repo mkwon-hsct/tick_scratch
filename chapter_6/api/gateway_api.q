@@ -11,7 +11,7 @@ GATEWAY_CHANNEL: $[
   .z.f like "*rdb.q";
   `query_rdb;
   .z.f like "*intraday_hdb.q";
-  `query_intaraday_hdb;
+  `query_intraday_hdb;
   // .z.f like "*hdb.q";
   `query_hdb
  ];
@@ -32,13 +32,15 @@ EXECUTION_FAILURE: `EXECUTION_STATUS$`failure;
 * @param function {variable}
 * - symbol: Name of a built-in function to execute.
 * - string: Name of a function to execute which is local to this process.
+* @param arguments {any}: List of arguments.
+* @param time_range {timestamp list}: Start time and end time of the queried range.
 \
-.gateway.execute:{[function;arguments]
-  result: .[value; (function; arguments); {[error] (EXECUTION_FAILURE; error)}];
-  $[EXECUTION_FAILURE ~/: result;
+.gateway.execute:{[function;arguments;time_range]
+  result: @[value; (function; arguments; time_range); {[error] (EXECUTION_FAILURE; error)}];
+  $[any EXECUTION_FAILURE ~/: result;
     // Execution error
-    .z.w (`.gateway.callback; 1b; result 1);
+    neg[.z.w] (`.gateway.callback; 1b; result 1);
     // Execution success
-    .z.w (`.gateway.callback; 0b; result)
+    neg[.z.w] (`.gateway.callback; 0b; result)
   ]
  };

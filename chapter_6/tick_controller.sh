@@ -35,16 +35,7 @@ function launch(){
 function terminate(){
   ## Get process type
   PROCESS_TYPE=$(echo $1 | awk -F";" '{print $1}');
-  ## Get process ID
-  PROCESS_ID=$(ps x | awk -v "process_type=${PROCESS_TYPE}" '{
-    if($6 ~ process_type){
-      print $1
-    }
-  }');
-  ## Terminate
-  if [[ ${PROCESS_ID} != "" ]]; then
-    kill ${PROCESS_ID};
-  fi
+  ./terminate_process.sh ${PROCESS_TYPE}
 }
 
 ## Launch or terminate processes.
@@ -56,10 +47,10 @@ if [[ $1 == "start" ]]; then
     ## Wait until process becomes ready
     if [[ $(echo $line | awk -F";" '{print $1}') == "tickerplant" ]]; then
       TARGET_PORT=$(echo $line | awk -F";" '{print $2}');
-      RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping);
+      RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping 2> /dev/null);
       while [[ ${RESPONSE} != "alive" ]]
       do
-        RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping);
+        RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping 2> /dev/null);
         sleep "1";
       done
     else

@@ -38,4 +38,4 @@ GATEWAY_CHANNEL: `user_query;
 //                     Start Process                     //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-.cmng_api.register_as_producer[MY_ACCOUNT_NAME; `user_query];
+.cmng_api.register_as_producer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL];
