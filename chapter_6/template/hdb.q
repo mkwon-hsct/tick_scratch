@@ -40,6 +40,10 @@ load_HDB:{[]
   system "l ", getenv `KDB_HDB_HOME;
  };
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                       Interface                       //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
 /
 * @brief Reload HDB directory. Called by Log Replayer.
 \
@@ -54,6 +58,9 @@ load_HDB:{[]
 
 // Register as a downstream of Gateway
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL; enlist `all];
+
+// Register as a downstream of Resource Manager
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; RESOURCE_MANAGER_CHANNEL; enlist `all];
 
 // Load HDB directory.
 load_HDB[];

@@ -40,9 +40,14 @@ INTRADAY_HDB_CHANNEL: `$"intraday_hdb_", string .z.h;
 HDB_CHANNEL: `$"hdb_", string .z.h;
 
 /
-* @brief Channel to notify of log rolling to Gateway. 
+* @brief Channel to notify of log file rolling to Resource Manager. 
 \
-GATEWAY_CHANNEL: `$"query_block_notify_", string .z.h;
+RESOURCE_MANAGER_CHANNEL: `query_block_notify;
+
+/
+* @brief Channel to notify of log file rolling to Gateway. 
+\
+GATEWAY_CHANNEL: `$"logfile_rolling_notify_", string .z.h;
 
 /
 * @brief Path to Intra-day HDB directory.
@@ -62,17 +67,6 @@ EOD_TIME: "I"$getenv `KDB_EOD_TIME;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                   Private Functions                   //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-
-/
-* @brief Insert a record to a table.
-* @param table {symbol}: name of a table.
-* @param data {variable}:
-*  - compound list: Single record.
-*  - table: Bunch of records. 
-\
-.cmng_api.update:{[table;data]
-   table insert data;
- };
 
 /
 * @brief Save a table with symbol partitions at intra-day write down.
@@ -120,6 +114,21 @@ move_to_HDB:{[date;table]
   target_column set `p#get target_column: .Q.dd[HDB_HOME; (date; table; sort_column)];
  };
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                       Interface                       //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+/
+* @brief Insert a record to a table.
+* @param table {symbol}: name of a table.
+* @param data {variable}:
+*  - compound list: Single record.
+*  - table: Bunch of records. 
+\
+.cmng_api.update:{[table;data]
+   table insert data;
+ };
+
 /
 * @brief Delete data in tables at the rolling of log file.
 * @param logfile {symbol}: Handle to the log file cut off by the tickerplant.
@@ -129,7 +138,7 @@ move_to_HDB:{[date;table]
   .log.info["replay log file"; logfile];
   -11!logfile;
   // Block Intra-day HDB and save tables
-  .cmng_api.call[GATEWAY_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (INTRADAY_HDB_CHANNEL; 1b); 1b];
+  .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (.z.h; INTRADAY_HDB_CHANNEL; 1b); 1b];
   save_table each TABLES_IN_DB;
   // Fill missing tables
   .Q.chk INTRADAY_HDB_HOME;
@@ -139,19 +148,19 @@ move_to_HDB:{[date;table]
   if[date_hour[1] = EOD_TIME-1;
     .log.info["End of day"; ::];
     // Block HDB and migrate to HDB
-    .cmng_api.call[GATEWAY_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (HDB_CHANNEL; 1b); 1b];
+    .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (.z.h; HDB_CHANNEL; 1b); 1b];
     move_to_HDB[date_hour 0] each TABLES_IN_DB;
     // Fill missing tables
     .Q.chk INTRADAY_HDB_HOME;
     // Notify HDB the completion of EOD procedure.
     .cmng_api.call[HDB_CHANNEL; `; `.logreplay.reload_on_disk_write; enlist (::); 1b];
     // Unlock HDB
-    .cmng_api.call[GATEWAY_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (HDB_CHANNEL; 0b); 1b]
+    .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (.z.h; HDB_CHANNEL; 0b); 1b]
   ];
   // Notify Intra-day HDB the completion of disk write.
   .cmng_api.call[INTRADAY_HDB_CHANNEL; `; `.logreplay.reload_on_disk_write; enlist (::); 1b];
   // Unlock Intra-day HDB
-  .cmng_api.call[GATEWAY_CHANNEL; `; `.logreplay.task_on_rolling_logfile; (INTRADAY_HDB_CHANNEL; 0b); 1b];
+  .cmng_api.call[; `; `.logreplay.task_on_rolling_logfile; (.z.h; INTRADAY_HDB_CHANNEL; 0b); 1b] each (RESOURCE_MANAGER_CHANNEL; GATEWAY_CHANNEL);
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -169,3 +178,6 @@ move_to_HDB:{[date;table]
 
 // Register as an upstream of Gateway
 .cmng_api.register_as_producer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL];
+
+// Register as an upstream of Resource Manager
+.cmng_api.register_as_producer[MY_ACCOUNT_NAME; RESOURCE_MANAGER_CHANNEL];

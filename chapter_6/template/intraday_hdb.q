@@ -48,6 +48,10 @@ load_intraday_HDB:{[]
   sym:: @[get; .Q.dd[HDB_HOME; `sym]; {[error] .log.error[error; ::]}];
  };
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                       Interface                       //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
 /
 * @brief Reload Intra-day HDB directory and sym file in HDB. Called by Log Replayer.
 \
@@ -62,6 +66,9 @@ load_intraday_HDB:{[]
 
 // Register as a downstream of Gateway
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL; enlist `all];
+
+// Register as a downstream of Resource Manager
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; RESOURCE_MANAGER_CHANNEL; enlist `all];
 
 // Load Intra-day HDB directory.
 load_intraday_HDB[];

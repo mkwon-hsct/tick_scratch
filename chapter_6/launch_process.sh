@@ -37,6 +37,8 @@ elif [[ $1 == "gateway" ]]; then
   launch template/gateway.q -p $2 -user $3
 elif [[ $1 == "log_replayer" ]]; then
   launch template/log_replayer.q -p $2 -user $3
+elif [[ $1 == "resource_manager" ]]; then
+  launch template/resource_manager.q -p $2 -user $3
 elif [[ $1 == "user" ]]; then
   launch template/user.q -p $2 -user $3
 else

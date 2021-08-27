@@ -7,6 +7,9 @@
 //                    Global Variables                   //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
+/
+* @brief Channel to receive a query from Gateway.
+\
 GATEWAY_CHANNEL: $[
   .z.f like "*rdb.q";
   `query_rdb;
@@ -14,6 +17,18 @@ GATEWAY_CHANNEL: $[
   `query_intraday_hdb;
   // .z.f like "*hdb.q";
   `query_hdb
+ ];
+
+/
+* @brief Channel to connect with Resource Manager.
+\
+RESOURCE_MANAGER_CHANNEL: $[
+  .z.f like "*rdb.q";
+  `monitor_rdb;
+  .z.f like "*intraday_hdb.q";
+  `monitor_intraday_hdb;
+  // .z.f like "*hdb.q";
+  `monitor_hdb
  ];
 
 /
@@ -33,10 +48,11 @@ EXECUTION_FAILURE: `EXECUTION_STATUS$`failure;
 * - symbol: Name of a built-in function to execute.
 * - string: Name of a function to execute which is local to this process.
 * @param arguments {any}: List of arguments.
+* @param topics {list of symbol}: Topics included in the query.
 * @param time_range {timestamp list}: Start time and end time of the queried range.
 \
-.gateway.execute:{[function;arguments;time_range]
-  result: @[value; (function; arguments; time_range); {[error] (EXECUTION_FAILURE; error)}];
+.gateway.execute:{[function;arguments;topics;time_range]
+  result: @[value; (function; arguments; topics; time_range); {[error] (EXECUTION_FAILURE; string[GATEWAY_CHANNEL], ":", error)}];
   $[any EXECUTION_FAILURE ~/: result;
     // Execution error
     neg[.z.w] (`.gateway.callback; 1b; result 1);

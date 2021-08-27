@@ -24,6 +24,9 @@ COMMANDLINE_ARGUMENTS: @[.Q.opt .z.X; `user; {[arg] `$first arg}];
 // Set account name.
 MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 
+/
+* @brief Channel to send a query to Gateway.
+\
 GATEWAY_CHANNEL: `user_query;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//

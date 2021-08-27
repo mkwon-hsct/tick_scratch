@@ -94,6 +94,10 @@ log_roll_check:{[data]
   ];
  };
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                       Interface                       //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
 /
 * @brief Write received data to a log file and switch a log file if timestamp of the data passes `NEXT_LOG_ROLL_TIME`.
 * @param table {symbol}: Name of a table to update.

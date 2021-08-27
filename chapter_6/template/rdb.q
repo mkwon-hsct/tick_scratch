@@ -41,6 +41,19 @@ LOGFILE_REQUEST_CHANNEL: `$"logfile_request_", string .z.h;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /
+* @brief Add grouping attribute to a table.
+* @param table {symbol}: Table name.
+\
+add_grouping_attribute:{[table]
+  grouping_column: TABLE_SORT_KEY table;
+  ![table; (); 0b; enlist[grouping_column]!enlist (`g#; grouping_column)];
+ };
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                       Interface                       //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+/
 * @brief Insert a record to a table.
 * @param table {symbol}: name of a table.
 * @param data {variable}:
@@ -49,15 +62,6 @@ LOGFILE_REQUEST_CHANNEL: `$"logfile_request_", string .z.h;
 \
 .cmng_api.update:{[table;data]
    table insert data;
- };
-
-/
-* @brief Add grouping attribute to a table.
-* @param table {symbol}: Table name.
-\
-add_grouping_attribute:{[table]
-  grouping_column: TABLE_SORT_KEY table;
-  ![table; (); 0b; enlist[grouping_column]!enlist (`g#; grouping_column)];
  };
 
 /
@@ -105,4 +109,7 @@ ACTIVE_LOG: first .cmng_api.call[LOGFILE_REQUEST_CHANNEL; `log_request; "get"; `
 \x .z.ps
 
 // Register as a downstream of Gateway
-.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL; enlist `all];
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; GATEWAY_CHANNEL; COMMANDLINE_ARGUMENTS `topics];
+
+// Register as a downstream of Resource Manager
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; RESOURCE_MANAGER_CHANNEL; COMMANDLINE_ARGUMENTS `topics];
