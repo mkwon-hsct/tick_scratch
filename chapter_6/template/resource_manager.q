@@ -35,9 +35,9 @@ RESOURCE_MANAGERS: (`symbol$())!`int$();
 MASTER: 1b;
 
 /
-* @brief Prevailing time when log file was rolled. Updated by Log Replayer at log file rolling.
+* @brief Handle of master Resource Manager. Updated at the start of this process.
 \
-LATEST_LOG_ROLLING_TIME: .z.d+`time$1000*60*60*`hh$.z.t;
+MASTER_HANDLE: (::);
 
 /
 * @brief Table to manage availability of databases.
@@ -61,6 +61,11 @@ LOG_REPLAYER_CHANNEL: `query_block_notify;
 RDB_CHANNEL: `monitor_rdb;
 INTRADAY_HDB_CHANNEL: `monitor_intraday_hdb;
 HDB_CHANNEL: `monitor_hdb;
+
+/
+* @brief Channel to recive return notification from databases. 
+\
+DATABASE_RETURN_CHANNEL: `database_return;
 
 /
 * @brief Channel to communicate with Gateway.
@@ -106,11 +111,14 @@ connect_peer_manager:{[peer]
     DATABASE_AVAILABILITY:: socket (get; `DATABASE_AVAILABILITY);
     // Behave as slave.
     MASTER:: 0b;
+    // Update master.
+    MASTER_HANDLE:: socket (get; `MASTER_HANDLE)
   ];
  };
 
 /
 * @brief Select available databases which holds data of specified topics.
+* @param gateway_host: Host of Gateway which called this function.
 * @param hosts {list of symbol}: Target hosts to search available databases.
 * @param topic {symbol}: Topic included in the query.
 * @param channel_ {symbol}: Channel to which query is sent.
@@ -119,14 +127,14 @@ connect_peer_manager:{[peer]
 *   - send: List of pairs of (host; port)
 *   - queue: List of symbol for which database could not be arranged.
 \
-select_database:{[hosts;topics_;channel_]
+select_database:{[gateway_host;hosts;topics_;channel_]
   // If hosts are empty, enqueue topics_ and return it.
   if[0 = count hosts; :enlist[`queue]!enlist topics_];
 
-  next_host:$[.z.h in hosts;
+  next_host:$[gateway_host in hosts;
     [
-      hosts: hosts except .z.h;
-      .z.h
+      hosts: hosts except gateway_host;
+      gateway_host
     ];
     [
       next_host: first hosts;
@@ -143,7 +151,7 @@ select_database:{[hosts;topics_;channel_]
     [
       remained: topics_ except covered;
       // Serach from the next host
-      (`send`queue!(candidates[::; 1 2]; `symbol$())),' select_database[hosts; remained; channel_]
+      (`send`queue!(candidates[::; 1 2]; `symbol$())),' .z.s[hosts; remained; channel_]
     ]
   ]
  };
@@ -163,20 +171,27 @@ Z_PC_: .z.pc;
 /
 * @brief Switch master if peer manager dropped. Otherwise process with Connection Manager API.
 \
-.z.pc:{[socket]
-  $[0 = count handle: where socket = RESOURCE_MANAGERS;
-    // Not peer manager
-    Z_PC_[socket];
+.z.pc:{[socket_]
+  //  Check if the socket is for database
+  host_port: first each exec (`$host; "I"$port) from CONNECTION where socket = socket_;
+  $[count select from DATABASE_AVAILABILITY where host = host_port[0], port = host_port[1];
+    // Database dropped
+    delete from `DATABASE_AVAILABILITY where host = host_port[0], port = host_port[1];
+    count handle: where socket_ = RESOURCE_MANAGERS;
     // Peer manager dropped
     [
+      
       // Check current master
-      current_master: first asc key[RESOURCE_MANAGERS], self: hsym `$":" sv string (.z.h; system "p");
       // Remove the handle of dropped resource manager
       RESOURCE_MANAGERS _: handle;
-      // Decide the next master
-      next_master: first asc key[RESOURCE_MANAGERS], self: hsym `$":" sv string (.z.h; system "p");
-      if[self ~ next_master; MASTER:: 1b]
-    ]
+      if[MASTER_HANDLE ~ handle;
+        // Decide the next master
+        MASTER_HANDLE:: first asc key[RESOURCE_MANAGERS], self: hsym `$":" sv string (.z.h; system "p");
+        if[self ~ next_master; MASTER:: 1b]
+      ];
+    ];
+    // Not peer manager
+    Z_PC_[socket_]
   ]
  };
 
@@ -195,10 +210,19 @@ Z_PC_: .z.pc;
  };
 
 /
+* @brief Register a returned database as an available resource.
+* @param host {symbol}: Host of a database.
+* @param port {int}: Port of a database.
+* @param channel {symbol}: Channel to which a database belongs.
+\
+.rscmng.return:{[host;port;channel]
+  `DATABASE_AVAILABILITY insert (host; port; channel; exec topic from CONSUMER_FILTERS where .z.w in/: sockets; 1b);
+ };
+
+/
 * @brief Select available databases for given channel and topics.
-* @param target {dictionary}:
-* - key {symbol}: Channel of database to which query is sent.
-* - value {list of timestamp}: Start time and end time of the queried range that each kind of database searches.
+* @param gateway_host: Host of Gateway which called this function.
+* @param target {list of symbol}: Channel of database to which query is sent.
 * @param topics {list of symbol}: Topics included in the query.
 * @return 
 * - dictionary:
@@ -207,13 +231,13 @@ Z_PC_: .z.pc;
 *     - send: List of pairs of (host; port)
 *     - queue: List of symbol for which database could not be arranged.
 \
-.rscmng.select_database:{[target;topics]
+.rscmng.select_database:{[gateway_host;target;topics]
   // Only master reacts
   if[not MASTER; :()];
 
   hosts: exec distinct host from DATABASE_AVAILABILITY;
   // Map from channel to target databases
-  databases: key[target]!select_database[hosts; topics] each key target;
+  databases: target!select_database[gateway_host; hosts; topics] each target;
   // List of (host; port) in `send
   host_port: raze value[databases] `send;
   // Block databases with the target host and port
@@ -228,13 +252,17 @@ Z_PC_: .z.pc;
 * @param channel_ {symbol}: Channel of a database.
 * @param host_ {symbol}: Host of a database.
 * @param propagate_ {bool}: Flag of whether to propagate the availability.
+* @param expression {compound list}: Expression to execute after unlocking database.
 \
-.rscmng.unlock:{[channel_;host_;propagate_]
+.rscmng.unlock:{[channel_;host_;propagate_;expression]
   // Only master reacts
   if[not MASTER; :()];
   
   update available: 1b from `DATABASE_AVAILABILITY where host = host_, channel = channel_;
-  if[propagate_; propagate[]];
+  $[propagate_;
+    propagate[];
+    value expression
+  ]
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -250,7 +278,10 @@ Z_PC_: .z.pc;
 // Register as an upstream of databases.
 .cmng_api.register_as_producer[MY_ACCOUNT_NAME] each (RDB_CHANNEL; INTRADAY_HDB_CHANNEL; HDB_CHANNEL);
 
-// Register databases
+// Register as a downstream of Gateway.
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; DATABASE_RETURN_CHANNEL; enlist `return];
+
+// Register databases.
 {[channel_]
   dbs: exec distinct raze sockets from CONSUMER_FILTERS where channel = channel_;
   db_records: exec (`$host; "I"$port) from CONNECTION where socket in dbs;

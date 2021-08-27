@@ -113,3 +113,9 @@ ACTIVE_LOG: first .cmng_api.call[LOGFILE_REQUEST_CHANNEL; `log_request; "get"; `
 
 // Register as a downstream of Resource Manager
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; RESOURCE_MANAGER_CHANNEL; COMMANDLINE_ARGUMENTS `topics];
+
+// Register as a producer of Resource Manager.
+.cmng_api.register_as_producer[MY_ACCOUNT_NAME; DATABASE_RETURN_CHANNEL];
+if[count sockets: exec sockets from CONSUMER_FILTERS where channel = DATABASE_RETURN_CHANNEL;
+  .cmng_api.call[DATABASE_RETURN_CHANNEL; `return; `.rscmng.return; (.z.h; "I"$first COMMANDLINE_ARGUMENTS `p; GATEWAY_CHANNEL); 1b]
+ ];

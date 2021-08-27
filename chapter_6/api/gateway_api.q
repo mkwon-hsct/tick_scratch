@@ -32,6 +32,11 @@ RESOURCE_MANAGER_CHANNEL: $[
  ];
 
 /
+* @brief Channel to recive return notification from databases. 
+\
+DATABASE_RETURN_CHANNEL: `database_return;
+
+/
 * @brief Enum of query execution status.
 \
 EXECUTION_STATUS: enlist `failure;

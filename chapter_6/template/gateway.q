@@ -31,13 +31,6 @@ EXECUTION_STATUS: enlist `failure;
 EXECUTION_FAILURE: `EXECUTION_STATUS$`failure;
 
 /
-* @brief Table to manage status of databases.
-* @keys Database sockets.
-* @values Flag of whether a database is available.
-\
-DATABASE_AVAILABILITY: (`int$())!`boolean$();
-
-/
 * @brief Table to manage status of query execution.
 * @columns
 * - id {long}: Query ID.
@@ -244,13 +237,26 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
 
   // Decide target channel.
   target: split_time_range time_range;
-  // Filter out non-existing topics
-  filtered: topics inter existing: exec distinct topic from CONSUMER_FILTERS where channel = RDB_CHANNEL;
-  // Return null if no topic is available in databases.
-  if[(0 = count filtered) and not `all in existing; :-30!(.z.w; 0b; ())];
+
+  // Expand `all` topics.
+  if[0 > type topics; enlist topics];
+  filtered: $[topics ~ enlist `all;
+    exec distinct topic from CONSUMER_FILTERS where channel = RDB_CHANNEL;
+    [
+      // Filter out non-existing topics
+      topics inter existing: exec distinct topic from CONSUMER_FILTERS where channel = RDB_CHANNEL;
+      $[(0 = count filtered) and not existing ~ enlist `all;
+        // Return null if no topic is available in databases.
+        :-30!(.z.w; 1b; "no such topics");
+        // `all` will handle these.
+        topics
+      ];
+    ]
+  ];
+
   // Get available databases.
   // `raze` is necessary because call executes function to list.
-  databases: raze .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.rscmng.select_database; (target; filtered); 0b];
+  databases: raze .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.rscmng.select_database; (.z.h; key target; filtered); 0b];
 
   // Send query
   register_and_send_query[filtered;function;arguments] ./: flip ((key; {[dictionary] value[dictionary][`send]}) @\: databases), enlist value target;
@@ -271,15 +277,9 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
   // Client cannot send multiple queries since it is blocked.
   `QUERY_STATUS upsert (query_id; .z.w; error_indicator; result);
 
-  // Get query ID.
-  query_id: exec first id from QUERY_STATUS where socket = .z.w;
-
   // Part of the query is remained in a queue
   is_queued: count select i from QUERY_QUEUE where id = query_id;
 
-  .dbg.is_queued: is_queued;
-  .dbg.status: QUERY_STATUS;
-  .dbg.id: query_id;
   if[(all not (::) ~/: last error_flags_and_results: exec (error; result) from QUERY_STATUS where id = query_id) and not is_queued;
     // All results were back
     $[all not first error_flags_and_results;
@@ -313,10 +313,8 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
     // Found queued request for the database
     [
       // Unlock the database to send another query.
-      // Do not propagate to avoid race condition
-      .cmng_api.call[RESOURCE_MANAGER_CHANNEL;`;`.rscmng.unlock;(channel_; host_; 0b); 1b];
-      // Assured that database is available
-      database: raze .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.rscmng.select_database; (query[`channel]!query[`time_range]; raze query `topics); 0b];
+      // Do not bother to propagate and execute atomically
+      database: raze .cmng_api.call[RESOURCE_MANAGER_CHANNEL;`;`.rscmng.unlock;(channel_; host_; 0b); 0b; (`.rscmng.select_database; .z.h; query[`channel]!query[`time_range]; raze query `topics)];
       // Convert into dictionary because the number of rows of `query` is 1.
       query: first query;
       // Send query
@@ -326,7 +324,7 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
     ];
     // No queue was found for this database
     // Unlock the database and propagate to make it available for everyone
-    .cmng_api.call[RESOURCE_MANAGER_CHANNEL;`;`.rscmng.unlock;(channel_; host_; 1b); 1b]
+    .cmng_api.call[RESOURCE_MANAGER_CHANNEL;`;`.rscmng.unlock;(channel_; host_; 1b); 1b; ::]
   ];
  };
 
