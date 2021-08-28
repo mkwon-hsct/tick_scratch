@@ -27,7 +27,7 @@ MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 /
 * @brief Channel to send a query to Gateway.
 \
-GATEWAY_CHANNEL: `user_query;
+GATEWAY_CHANNEL: `$"user_query_", string .z.h;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                   Private Functions                   //

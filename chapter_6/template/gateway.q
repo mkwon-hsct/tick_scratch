@@ -92,7 +92,7 @@ HDB_CHANNEL: `query_hdb;
 /
 * @brief Channel to receive a query from a user.
 \
-USER_CHANNEL: `user_query;
+USER_CHANNEL: `$"user_query_", string .z.h;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                   Private Functions                   //
@@ -166,6 +166,7 @@ split_time_range:{[time_range]
 
 /
 * @brief Tie database socket with query ID and send a query to the database.
+* @param query_id {long}: Query ID.
 * @param topics: {list of symbol}: Target topics of the query.
 * @param time_range {timestamp list}: Start time and end time of the queried range.
 * @param function {symbol}: Function name.
@@ -173,18 +174,18 @@ split_time_range:{[time_range]
 * @param channel {symbol}: Channel of a target databse.
 * @param target {compound list}: List of pairs of (host; port).
 \
-register_and_send_query:{[topics;function;arguments;channel;targets;time_range]
-  // Empty topics must be ignored
-  if[not count topics; :()];
+register_and_send_query:{[query_id;topics;function;arguments;channel;targets;time_range]
+  // Empty targets must be ignored
+  if[not count targets; :()];
 
   // Get socket from host and port
   sockets: exec socket from CONNECTION where $[`;host] in targets[::; 0], $["I";port] in targets[::; 1];
   // Register sockets
-  `QUERY_STATUS upsert/: (QUERY_ID,/: sockets),\: (0b; ::);
+  `QUERY_STATUS upsert/: (query_id,/: sockets),\: (0b; ::);
   // Send the query to databases
-  -25!(sockets; (`.gateway.execute; function; arguments; topics; time_range));
+  -25!(sockets; (`.gateway.execute; query_id; function; arguments; topics; time_range));
   // Publish to `system_log` channel
-  .cmng_api.publish_call_to_system_log[.z.p; channel; `query; `.gateway.execute; (function; arguments; topics; time_range)];
+  .cmng_api.publish_call_to_system_log[.z.p; channel; `query; `.gateway.execute; (query_id; function; arguments; topics; time_range)];
  };
 
 /
@@ -200,9 +201,6 @@ register_and_send_query:{[topics;function;arguments;channel;targets;time_range]
 enqueue_query:{[function;arguments;channel;topics;time_range]
   // Emplty topics must be ignored
   if[not count topics; :()];
-  show "enqueue";
-  .dbg.queue: (QUERY_ID; topics; channel; time_range; function; arguments);
-  .dbg.query_queue: QUERY_QUEUE;
   `QUERY_QUEUE insert (QUERY_ID; topics; channel; time_range; function; arguments);
  };
 
@@ -244,35 +242,33 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
     exec distinct topic from CONSUMER_FILTERS where channel = RDB_CHANNEL;
     [
       // Filter out non-existing topics
-      topics inter existing: exec distinct topic from CONSUMER_FILTERS where channel = RDB_CHANNEL;
+      filtered: topics inter existing: exec distinct topic from CONSUMER_FILTERS where channel = RDB_CHANNEL;
       $[(0 = count filtered) and not existing ~ enlist `all;
         // Return null if no topic is available in databases.
         :-30!(.z.w; 1b; "no such topics");
         // `all` will handle these.
         topics
-      ];
+      ]
     ]
   ];
 
   // Get available databases.
   // `raze` is necessary because call executes function to list.
   databases: raze .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.rscmng.select_database; (.z.h; key target; filtered); 0b];
-
   // Send query
-  register_and_send_query[filtered;function;arguments] ./: flip ((key; {[dictionary] value[dictionary][`send]}) @\: databases), enlist value target;
+  register_and_send_query[QUERY_ID; filtered; function; arguments] ./: flip ((key; {[dictionary] value[dictionary][`send]}) @\: databases), enlist value target;
   // Enqueue query
-  enqueue_query[function;arguments] ./: flip ((key; {[dictionary] value[dictionary][`queue]}) @\: databases), enlist value target;
+  enqueue_query[function; arguments] ./: flip ((key; {[dictionary] value[dictionary][`queue]}) @\: databases), enlist value target;
 
   QUERY_ID+:1;
  };
 
 /
+* @param query_id {long}: Query ID.
 * @param error_indicator {bool}: Flag of whether error happenned at the execution.
 * @param result {any}: Query result from a database.
 \
-.gateway.callback:{[error_indicator;result]
-  // Get query ID.
-  query_id: exec first id from QUERY_STATUS where socket = .z.w;
+.gateway.callback:{[query_id;error_indicator;result]
 
   // Client cannot send multiple queries since it is blocked.
   `QUERY_STATUS upsert (query_id; .z.w; error_indicator; result);
@@ -314,17 +310,17 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
     [
       // Unlock the database to send another query.
       // Do not bother to propagate and execute atomically
-      database: raze .cmng_api.call[RESOURCE_MANAGER_CHANNEL;`;`.rscmng.unlock;(channel_; host_; 0b); 0b; (`.rscmng.select_database; .z.h; query[`channel]!query[`time_range]; raze query `topics)];
+      database: raze .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.rscmng.unlock; (channel_; host_; 0b; (`.rscmng.select_database; .z.h; query `channel; raze query `topics)); 0b];
       // Convert into dictionary because the number of rows of `query` is 1.
       query: first query;
       // Send query
-      register_and_send_query[query `topics; query `function; query `arguments; channel_; database[channel_][`send]; query `time_range];
+      register_and_send_query[first query `id; query `topics; query `function; query `arguments; channel_; database[channel_][`send]; query `time_range];
       // Delete the query from queue
       delete from `QUERY_QUEUE where channel = channel_, id = min id;
     ];
     // No queue was found for this database
     // Unlock the database and propagate to make it available for everyone
-    .cmng_api.call[RESOURCE_MANAGER_CHANNEL;`;`.rscmng.unlock;(channel_; host_; 1b); 1b; ::]
+    .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.rscmng.unlock; (channel_; host_; 1b; ::); 1b]
   ];
  };
 

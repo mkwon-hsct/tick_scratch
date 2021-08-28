@@ -151,7 +151,7 @@ select_database:{[gateway_host;hosts;topics_;channel_]
     [
       remained: topics_ except covered;
       // Serach from the next host
-      (`send`queue!(candidates[::; 1 2]; `symbol$())),' .z.s[hosts; remained; channel_]
+      (`send`queue!(candidates[::; 1 2]; `symbol$())),' .z.s[gateway_host; hosts; remained; channel_]
     ]
   ]
  };
@@ -176,7 +176,10 @@ Z_PC_: .z.pc;
   host_port: first each exec (`$host; "I"$port) from CONNECTION where socket = socket_;
   $[count select from DATABASE_AVAILABILITY where host = host_port[0], port = host_port[1];
     // Database dropped
-    delete from `DATABASE_AVAILABILITY where host = host_port[0], port = host_port[1];
+    [
+      .log.info["database dropped"; hsym `$":" sv string host_port];
+      delete from `DATABASE_AVAILABILITY where host = host_port[0], port = host_port[1];
+    ];
     count handle: where socket_ = RESOURCE_MANAGERS;
     // Peer manager dropped
     [
@@ -241,9 +244,12 @@ Z_PC_: .z.pc;
   // List of (host; port) in `send
   host_port: raze value[databases] `send;
   // Block databases with the target host and port
-  update available: 0b from `DATABASE_AVAILABILITY where host in host_port[::; 0], port in host_port[::; 1];
-  // Propagate availability to the other Resource Managers
-  propagate[];
+  if[count host_port;
+    // Target exists
+    update available: 0b from `DATABASE_AVAILABILITY where host in host_port[::; 0], port in host_port[::; 1];
+    // Propagate availability to the other Resource Managers
+    propagate[]
+  ];
   databases
  };
 

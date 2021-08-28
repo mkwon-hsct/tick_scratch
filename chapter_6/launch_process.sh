@@ -23,25 +23,16 @@ function launch(){
 source config/.env
 
 ## Launch Process
-if [[ $1 == "connection_manager" ]]; then
-  launch template/connection_manager.q
-elif [[ $1 == "tickerplant" ]]; then
-  launch template/tickerplant.q -p $2 -user $3 -t $4
-elif [[ $1 == "rdb" ]]; then
-  launch template/rdb.q -p $2 -user $3 -topics $4
-elif [[ $1 == "hdb" ]]; then
-  launch template/hdb.q -p $2 -user $3
-elif [[ $1 == "intraday_hdb" ]]; then
-  launch template/intraday_hdb.q -p $2 -user $3
-elif [[ $1 == "gateway" ]]; then
-  launch template/gateway.q -p $2 -user $3
-elif [[ $1 == "log_replayer" ]]; then
-  launch template/log_replayer.q -p $2 -user $3
-elif [[ $1 == "resource_manager" ]]; then
-  launch template/resource_manager.q -p $2 -user $3
-elif [[ $1 == "user" ]]; then
-  launch template/user.q -p $2 -user $3
-else
-  echo -e "\[\e[32m\]Unknown process type\[\e[0m\]"
-  exit 1
-fi
+case "$1" in
+  connection_manager)
+    launch template/${1}.q ;;
+  tickerplant)
+    launch template/${1}.q -p $2 -user $3 -t $4 ;;
+  rdb)
+    launch template/${1}.q -p $2 -user $3 -topics $4 ;;
+  hdb | intraday_hdb | gateway | log_replayer | resource_manager | user)
+    launch template/${1}.q -p $2 -user $3 ;;
+  *)
+    echo -e "\e[31mUnknown process type: ${1}\e[0m"
+    exit 1 ;;
+esac

@@ -99,7 +99,7 @@ ACTIVE_LOG: first .cmng_api.call[LOGFILE_REQUEST_CHANNEL; `log_request; "get"; `
 // Filter
 .z.ps:{[message]
   // Execute messages with topics to which this process is subscribing
-  if[any COMMANDLINE_ARGUMENTS[`topics] in last message;
+  if[(COMMANDLINE_ARGUMENTS[`topics] ~ enlist `all) or any COMMANDLINE_ARGUMENTS[`topics] in last message;
     value message
   ];
  };
