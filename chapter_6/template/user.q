@@ -30,11 +30,34 @@ MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 GATEWAY_CHANNEL: `$"user_query_", string .z.h;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//                   Private Functions                   //
+//                       Interface                       //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 .cmng_api.update: {[table;message]
   table insert (.z.p; message 1; message 2; message 3);
+ };
+
+/
+* @brief Search messages with topics, time range and some conditions.
+* @param topics {list of symbol}: Topics to find a message.
+* @param time_range {list of timestamp}: Queried range.
+* @param option {dictionary}: Valid keys are below:
+* - group {dictionary}: Map from aggregate name and column name. Optional.
+* - columns {list of symbol}: Columns to select. Optional.
+* - keyword {string}: Pattern of a message to search. Optional.
+* - sender {symbol}: Sender of a message to search. Optional.
+* @return
+* - table: Merged table.
+\
+//
+search_message: {[topics;time_range;options]
+  // Table is fixed as `MESSAGE_BOX`
+  options: (``table!(::; `MESSAGE_BOX)), options;
+  // Select all columns by default
+  if[not `columns in key options; options[`columns]:()];
+  // Does not group by default
+  if[not `grouping in key options; options[`grouping]: 0b];
+  raze .cmng_api.call[GATEWAY_CHANNEL; `query; `.gateway.query; (time_range; topics; `history; options; {[results] delete int, date from (uj/) results}); 0b]
  };
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//

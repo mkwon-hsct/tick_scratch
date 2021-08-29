@@ -12,6 +12,7 @@
 \l utility/load.q
 .load.load_file `:api/connection_manager_api.q;
 .load.load_file `:api/gateway_api.q;
+.load.load_file `:utility/analytics.q;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                    Global Variables                   //

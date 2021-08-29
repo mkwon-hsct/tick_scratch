@@ -148,7 +148,7 @@ $[COMMANDLINE_ARGUMENTS `t;
 \
 .z.ts:{[now]
   {[table_topic; data]
-    .cmng_api.call[RDB_CHANNEL; table_topic 1; `.cmng_api.update; table_topic[1], enlist data; 1b];
+    .cmng_api.call[RDB_CHANNEL; table_topic 1; `.cmng_api.update; table_topic[0], data; 1b];
     // Make table empty
     TABLE_BUFFER[table_topic]: 0#TABLE_BUFFER[table_topic];
   } ./: flip (key; value) @\: TABLE_BUFFER;
