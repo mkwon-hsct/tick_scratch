@@ -62,7 +62,11 @@ add_grouping_attribute:{[table]
 *  - table: Bunch of records. 
 \
 .cmng_api.update:{[table;data]
-   table insert data;
+  $[table ~ `ALERT;
+    // ALert data. Ignore the information appended by Tickerplant.
+    table insert last data;
+    table insert data
+  ];
  };
 
 /

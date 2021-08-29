@@ -11,14 +11,15 @@
 /
 * @brief List of tables stored in a database.
 \
-TABLES_IN_DB: `MESSAGE_BOX`CALL;
+TABLES_IN_DB: `MESSAGE_BOX`CALL`ALERT;
 
 /
 * @brief Table for user chat messages.
-* @column time {timestamp}: Time when a message was received by a recipient.
-* @column topic {symbol}: Topic of the message.
-* @column sender {symbol}: Sender of the message.
-* @column message {string}: Message itself.
+* @columns
+* - time {timestamp}: Time when a message was received by a recipient.
+* - topic {symbol}: Topic of a message.
+* - sender {symbol}: Sender of a message.
+* - message {string}: Message itself.
 \
 MESSAGE_BOX: flip `time`topic`sender`message!"pss*"$\: ();
 
@@ -34,6 +35,18 @@ MESSAGE_BOX: flip `time`topic`sender`message!"pss*"$\: ();
 \
 CALL: flip `time`caller`channel`topic`function`arguments!"pssss*"$\:();
 
+/
+* @brief Table for suspicious chat messages.
+* @columns
+* - time {timestamp}: When this message was sent by an engine.
+* - sender {symbol}: Name of an engine.
+* - sender_time {timestamp}: Time when a message was sent by a user.
+* - topic {symbol}: Topic of a message.
+* - user {symbol}: Name of the user who sent a message.
+* - message {string}: Message itself.
+\
+ALERT: flip `time`sender`sender_time`topic`user`message!"pspss*"$\: ();
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                        Sort Key                       //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -45,5 +58,6 @@ CALL: flip `time`caller`channel`topic`function`arguments!"pssss*"$\:();
 \
 TABLE_SORT_KEY: .[!] flip ( /
   (`MESSAGE_BOX; `topic); /
-  (`CALL; `caller) /
+  (`CALL; `caller); /
+  (`ALERT; `user) /
  );

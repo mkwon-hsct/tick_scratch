@@ -120,8 +120,13 @@ $[COMMANDLINE_ARGUMENTS `t;
     log_roll_check[data];
     // Write the data to the log file
     ACTIVE_LOG_SOCKET enlist (`.cmng_api.update; table; data);
+    // Change account name temporarily
+    my_account_name: MY_ACCOUNT_NAME;
+    MY_ACCOUNT_NAME:: data 2;
     // Send data to RDB
     .cmng_api.publish[RDB_CHANNEL; data 1; table; data 3];
+    // Restore account name
+    MY_ACCOUNT_NAME:: my_account_name;
   }
  ];
 

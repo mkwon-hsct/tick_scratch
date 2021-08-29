@@ -49,7 +49,6 @@ GATEWAY_CHANNEL: `$"user_query_", string .z.h;
 * @return
 * - table: Merged table.
 \
-//
 search_message: {[topics;time_range;options]
   // Table is fixed as `MESSAGE_BOX`
   options: (``table!(::; `MESSAGE_BOX)), options;

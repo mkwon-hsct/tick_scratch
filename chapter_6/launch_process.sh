@@ -28,7 +28,7 @@ case "$1" in
     launch template/${1}.q ;;
   tickerplant)
     launch template/${1}.q -p $2 -user $3 -t $4 ;;
-  rdb)
+  rdb | engine)
     launch template/${1}.q -p $2 -user $3 -topics $4 ;;
   hdb | intraday_hdb | gateway | log_replayer | resource_manager | user)
     launch template/${1}.q -p $2 -user $3 ;;
