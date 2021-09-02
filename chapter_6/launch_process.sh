@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # @file launch_process.sh
 # @overview Launch a process with options.
@@ -13,10 +13,10 @@
 ## @brief Wrapper to use rlwrap.
 function launch(){
   ## process_yyyymmdd_HHMMSSNNNNNNNNN.log
-  process_type=$(echo $1 | sed 's/template/log/g' | tr -d .q);
-  logfile="${process_type}_$(date +%Y%m%d_%H%M%S%N).log";
+  LOGFILE=`echo $1 | sed 's/template/log/g' | tr -d .q`;
+  LOGFILE="${LOGFILE}_`date +%Y%m%d_%H%M%S%N`.log";
   ## Run on the background
-  nohup q $@ < /dev/null >> $logfile 2>&1 &
+  nohup q $@ < /dev/null >> ${LOGFILE} 2>&1 &
 }
 
 ## Load `.env`

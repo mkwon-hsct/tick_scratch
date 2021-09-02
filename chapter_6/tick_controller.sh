@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ## @file tick_controller.sh
 ## @overview Start/stop tick architecture based on configuration.
@@ -12,7 +12,7 @@ CONFIG=config/tick_architecture.config;
 ## @param $1 line: Line of the tick configuration file delimited by ";".
 function launch(){
   ## Build a launch command
-  LAUNCH_COMMAND=$(echo $1 | awk '
+  LAUNCH_COMMAND=`echo $1 | awk '
     BEGIN{
       COMMAND="./launch_process.sh ";
     }
@@ -25,7 +25,7 @@ function launch(){
     END{
       print(COMMAND);
     }'
-  );
+  `;
   ## Execute the command
   ${LAUNCH_COMMAND}
 }
@@ -34,36 +34,37 @@ function launch(){
 ## @param $1 line: Line of the tick configuration file delimited by ";".
 function terminate(){
   ## Get process type
-  PROCESS_TYPE=$(echo $1 | awk -F";" '{print $1}');
+  PROCESS_TYPE=`echo $1 | awk -F";" '{print $1}'`;
   ./terminate_process.sh ${PROCESS_TYPE}
 }
 
 ## Launch or terminate processes.
-if [[ $1 == "start" ]]; then
+if [ "$1" = "start" ]; then
   while read line
   do
     ## Launch process
-    launch $line;
+    launch ${line};
     ## Wait until process becomes ready
-    if [[ $(echo $line | awk -F";" '{print $1}') == "tickerplant" ]]; then
-      TARGET_PORT=$(echo $line | awk -F";" '{print $2}');
-      RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping 2> /dev/null);
-      while [[ ${RESPONSE} != "alive" ]]
+    if [ `echo ${line} | awk -F";" '{print $1}'` == "tickerplant" ]; then
+      TARGET_PORT=`echo ${line} | awk -F";" '{print $2}'`;
+      RESPONSE=`curl http://127.0.0.1:${TARGET_PORT}/ping 2> /dev/null`;
+      while [ "${RESPONSE}" != "alive" ]
       do
-        RESPONSE=$(curl http://127.0.0.1:${TARGET_PORT}/ping 2> /dev/null);
+        RESPONSE=`curl http://127.0.0.1:${TARGET_PORT}/ping 2> /dev/null`;
         sleep "1";
       done
     else
       sleep "0.1";
     fi
-  done < $CONFIG
-elif [[ $1 == "stop" ]]; then
-  tac $CONFIG | while read line
+  done < ${CONFIG}
+elif [ "$1" = "stop" ]; then
+  ## Read in reverse order
+  tac ${CONFIG} | while read line
   do
     ## Terminate process
-    terminate $line;
+    terminate ${line};
     sleep "0.1";
   done
 else
-  echo -e "\[\e[32m\]Unknown operation: $1\[\e[m\]";
+  echo -e "\[\e[32m\]Unknown operation: ${1}\[\e[m\]";
 fi
