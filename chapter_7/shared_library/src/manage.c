@@ -1,3 +1,8 @@
+/**
+ * @file manage.c
+ * @brief Examples to demonstrate memory management.
+ */
+
 #include <k.h>
 #include <stdio.h>
 #include <memory.h>
@@ -143,7 +148,7 @@ K simple_list2(){
 K symbol_list(){
   K list = ktn(KS, 2);
   kS(list)[0]=ss("1st");
-  kS(list)[1]=ss("2nd");
+  kS(list)[1]=sn("2nd element", 3);
   return list;
 }
 
@@ -236,11 +241,11 @@ K enkey(){
 /**
  * @brief Convert a keyed table into a table.
  * @return 
- * - keyed table
+ * - table
  */
 K unkey(){
-  K table = enkey();
-  return ktd(table);
+  K keyed_table = enkey();
+  return ktd(keyed_table);
 }
 
 /**
@@ -254,8 +259,7 @@ K artificial_keyed_table(){
   K keys1 = ktn(KS, 1);
   kS(keys1)[0]=ss("chars");
 
-  K value1_1 = ktn(KC, 2);
-  strcpy(kC(value1_1), "ab");
+  K value1_1 = kp("ab");
 
   // Everything is moved!!
   K key_table = xT(xD(keys1, knk(1, value1_1)));
@@ -360,5 +364,37 @@ K concat_list(K mode){
         r0(list2);
         return list1;
       }
+  }
+}
+
+/**
+ * @brief Build dictionary while validating keys and values.
+ * @return
+ * - dictionary: In case of validation success.
+ * - general null: In case of validation failure.
+ */
+K deligate(){
+  K keys = ktn(KI, 3);
+  for(int i = 0; i!= keys->n; ++i){
+    kI(keys)[i]=i;
+  }
+
+  K values = ktn(KM, 3);
+  for(int i = 0; i!= values->n; ++i){
+    kI(values)[i]=12 * i;
+  }
+
+  // Call `check` function with `keys` and `values` and get boolean result.
+  K ok = k(0, "check", r1(keys), r1(values), (K) 0);
+
+  if(ok->g){
+    r0(ok);
+    return xD(keys, values);
+  }
+  else{
+    r0(ok);
+    r0(keys);
+    r0(values);
+    return (K) 0;
   }
 }

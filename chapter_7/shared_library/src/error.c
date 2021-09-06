@@ -1,3 +1,8 @@
+/**
+ * @file error.c
+ * @brief Examples to distinct error and nullptr. 
+ */ 
+
 #include <k.h>
 #include <stdio.h>
 
