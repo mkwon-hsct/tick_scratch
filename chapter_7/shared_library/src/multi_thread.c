@@ -10,16 +10,28 @@
 
 /**
  * @brief Calculate average of list of int.
- * @param list {list of int}: List of int to calculate average.
+ * @param list {variable}:
+ * - list of int: List of int to calculate average.
+ * - any: Unexpected type.
  */
 void *averager(void *list){
   K q_list = (K) list;
-  F sum=0;
-  for(J i = 0; i!= q_list->n; ++i){
-    sum+=kI(q_list)[i];
+  K average = (K) 0;
+
+  if(((K) list)->t == KI){
+    // List of int
+    F sum=0;
+    for(J i = 0; i!= q_list->n; ++i){
+      sum+=kI(q_list)[i];
+    }
+    // Generate average value
+    average = kf(sum / q_list->n);
   }
-  // Generate average value
-  K average = kf(sum / q_list->n);
+  else{
+    // Wrong type
+    average = ks("unexpected");
+  }
+  
   // Encode to list of byte
   K q_bytes = b9(1, average);
   // Copy to raw bytes
@@ -60,18 +72,23 @@ K remote_avg(K list){
   
   // Launch thread
   pthread_t id;
+  // Enable sub-thread to refer to main sym.
+  setm(1);
   if (pthread_create(&id, NULL, averager, (void *) list) != 0) {
     return krr("pthread_create() error");
   }
 
   // Add arbitrary value
   jk(&final, kg(0x4d));
+  jk(&final, ks("main"));
 
   // Receive serialized object
   void *bytes;
   if (pthread_join(id, &bytes) != 0) {
     return krr("pthread_join() error");
   }
+  // Reset reference flag
+  setm(0);
 
   // Copy to K object
   K q_bytes = ktn(KG, get_size((G*) bytes));
