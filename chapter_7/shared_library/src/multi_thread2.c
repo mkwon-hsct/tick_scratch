@@ -12,30 +12,39 @@
 #include <time.h>
 #include <k.h>
 
+/**
+ * @brief Value indicating failure of creating a socket pair.
+ */
 const int SOCKET_ERROR = -1;
-I NOTIFY_CHANNEL[2] = {-1, -1};
-I TASK_CHANNEL[2] = {-1, -1};
-K RESULTS = (K) 0;
-pthread_mutex_t MUTEX;
-pthread_cond_t CONDITIONAL_VARIABLE;
 
 /**
- * @brief Return position of a given ID in `RESULTS`.
- * @param task_id: Task ID returned by `remote_execution`.
- * @return 
- * - -1: If the ID was not found in the results.
- * - number: Index of the ID in the results.
+ * @brief Channel to pass a result of an execution of a function from the sub-thread
+ *  to the main thread.
  */
-int find_result(K task_id){
-  // Initialize with length of keys
-  int position = kK(RESULTS)[0]->n;
-  int i = 0;
-  while(i != position && kJ(kK(RESULTS)[0])[i] != task_id->j){
-    ++i;
-  }
-  // -1 means not found
-  return (i == position)? -1: i;
-}
+I NOTIFY_CHANNEL[2] = {-1, -1};
+
+/**
+ * @brief Channel to pass a function and arguments from the main thread to the sub-thread.
+ */
+I TASK_CHANNEL[2] = {-1, -1};
+
+/**
+ * @brief Dictionary to store results of execution of functions.
+ * - key: Task ID.
+ * - value: Result of execution.
+ */
+K RESULTS = (K) 0;
+
+/**
+ * @brief Mutex to lock the sub-thread until the main thread passes a function and arguments.
+ */
+pthread_mutex_t MUTEX;
+
+/**
+ * @brief Conditional variable used with `MUTEX` to lock the sub-thread until the main thread
+ *  passes a function and arguments.
+ */
+pthread_cond_t CONDITIONAL_VARIABLE;
 
 /**
  * @brief Add a result once a task was completed.
@@ -57,7 +66,8 @@ K callback(I socket){
 }
 
 /**
- * @brief Initialize internal channels and registre a callback.
+ * @brief Initialize internal channels, initialize result dictionary and
+ *  register a callback.
  */
 K initialize(){
   
@@ -164,6 +174,24 @@ K remote_execution(K function, K arguments){
   pthread_mutex_unlock(&MUTEX);
   // Return job ID
   return kj(now);
+}
+
+/**
+ * @brief Return position of a given ID in `RESULTS`.
+ * @param task_id: Task ID returned by `remote_execution`.
+ * @return 
+ * - -1: If the ID was not found in the results.
+ * - number: Index of the ID in the results.
+ */
+int find_result(K task_id){
+  // Initialize with length of keys
+  int position = kK(RESULTS)[0]->n;
+  int i = 0;
+  while(i != position && kJ(kK(RESULTS)[0])[i] != task_id->j){
+    ++i;
+  }
+  // -1 means not found
+  return (i == position)? -1: i;
 }
 
 /**
