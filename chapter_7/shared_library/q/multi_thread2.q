@@ -1,4 +1,9 @@
 /
+* @file multi_thread2.q
+* @overview Load a shared library to use a thread and set up the instruments. 
+\
+
+/
 * @brief Enum value for detecting execution error.
 \
 EXECUTION_STATUS: enlist `failure;
