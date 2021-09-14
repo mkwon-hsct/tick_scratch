@@ -1,5 +1,14 @@
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                     Load Libraries                    //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
 #include <k.h>
 
-extern const signed char K_ERROR;
-extern const signed char K_GENERAL_NULL;
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+//                       Interface                       //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+/**
+ * @brief Formatter of q object.
+ */
 void format(K object);

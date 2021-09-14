@@ -5,4 +5,9 @@ chapter_6/202*.log
 chapter_6/hdb/sym
 chapter_6/hdb/20*
 chapter_7/shared_library/lib/*.so
+chapter_7/shared_library/include/k.h
+chapter_7/shared_library/include/toml.h
+chapter_7/shared_library/src/toml.c
 chapter_7/client/bin/qconsole
+chapter_7/client/include/k.h
+chapter_7/client/src/c.o
