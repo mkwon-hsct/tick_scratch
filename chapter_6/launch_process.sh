@@ -13,7 +13,7 @@
 ## @brief Wrapper to use rlwrap.
 function launch(){
   ## process_yyyymmdd_HHMMSSNNNNNNNNN.log
-  LOGFILE=`echo $1 | sed 's/template/log/g' | tr -d .q`;
+  local LOGFILE=`echo $1 | sed 's/template/log/g' | tr -d .q`;
   LOGFILE="${LOGFILE}_`date +%Y%m%d_%H%M%S%N`.log";
   ## Run on the background
   nohup q $@ < /dev/null >> ${LOGFILE} 2>&1 &

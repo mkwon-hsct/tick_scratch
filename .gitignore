@@ -5,3 +5,4 @@ chapter_6/202*.log
 chapter_6/hdb/sym
 chapter_6/hdb/20*
 chapter_7/shared_library/lib/*.so
+chapter_7/client/bin/qconsole

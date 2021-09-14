@@ -35,7 +35,7 @@ char ERROR_BUFFER[64];
  * @brief Free resource of TOML document.
  * @param document: Result object of parsing a TOML file.
  */
-K free_toml_table(K document){
+K free_toml_document(K document){
   toml_free((toml_table_t*) kK(document)[1]);
   kK(document)[0]=0;
   kK(document)[1]=0;
@@ -149,24 +149,19 @@ K get_timestamp(toml_datum_t element){
     free(element.u.ts);
     return kd(days);
   }
-  else if(element.u.ts->millisec){
+  else if(element.u.ts->second){
     // Time
-    int time = ((*element.u.ts->hour) * 60 * 60 + (*element.u.ts->minute) * 60 + *element.u.ts->second) * 1000 + *element.u.ts->millisec;
+    int time = ((*element.u.ts->hour) * 60 * 60 + (*element.u.ts->minute) * 60 + *element.u.ts->second) * 1000;
+    if(element.u.ts->millisec){
+      // Millisecond exists
+      time +=*element.u.ts->millisec;
+    }
     // Timestamp must be freed
     free(element.u.ts);
     return kt(time);
   }
-  else if(element.u.ts->second){
-    // Second
-    int second = (*element.u.ts->hour) * 60 * 60 + (*element.u.ts->minute) * 60 + *element.u.ts->second;
-    // Timestamp must be freed
-    free(element.u.ts);
-    K q_second = ka(-KV);
-    q_second->i = second;
-    return q_second;
-  }
   else{
-    // Hour and minute sould not be in TOML
+    // Hour and minute should not be in TOML
     return krr("unknown time type");
   }
 }
@@ -182,67 +177,66 @@ K get_timestamp(toml_datum_t element){
  * - list of symbol
  */
 K get_array(toml_array_t *array){
+  // List to return
   K list = (K) 0;
+
   int size = toml_array_nelem(array);
   if(!size){
     // Empty list
     return ktn(0, 0);
   }
 
-  toml_datum_t item = toml_bool_at(array, 0);
-  if(item.ok){
-    // Bool list
-    list = ktn(KB, size);
-    kG(list)[0] = (G) item.u.b;
-    for(int i = 1; i!= size; ++i){
-      kG(list)[i] = (G) toml_bool_at(array, i).u.b;
-    }
-    return list;
+  char item_type = toml_array_kind(array);
+  if(item_type != 'v'){
+    // Array of table, nested array and mixed array are not supported.
+    return krr("nyi");
   }
 
-  item = toml_int_at(array, 0);
-  if(item.ok){
-    // Long list
-    list = ktn(KJ, size);
-    kJ(list)[0] = item.u.i;
-    for(int i = 1; i!= size; ++i){
-      kJ(list)[i] = toml_int_at(array, i).u.i;
-    }
-    return list;
+  // Get value type
+  item_type = toml_array_type(array);
+  switch(item_type){
+    case 'b':
+      // Bool list
+      list = ktn(KB, size);
+      for(int i = 0; i!= size; ++i){
+        kG(list)[i] = (G) toml_bool_at(array, i).u.b;
+      }
+      break;
+    case 'i':
+      // Long list
+      list = ktn(KJ, size);
+      for(int i = 0; i!= size; ++i){
+        kJ(list)[i] = toml_int_at(array, i).u.i;
+      }
+      break;
+    case 'd':
+      // Float list
+      list = ktn(KF, size);
+      for(int i = 0; i!= size; ++i){
+        kF(list)[i] = toml_double_at(array, i).u.d;
+      }
+      break;
+    case 's':
+      {
+        // Symbol list
+        list = ktn(KS, size);
+        // Assume the length of symbol does not exceed 64.
+        char symbol[64];
+        kS(list)[0] = ss(symbol);
+        for(int i = 1; i!= size; ++i){
+          toml_datum_t item = toml_string_at(array, i);
+          strcpy(symbol, item.u.s);
+          free(item.u.s);
+          kS(list)[i] = ss(symbol);
+        }
+      }
+      break;
+    default:
+      // List of timestamp is unlikely to exist
+      return krr("nyi");
   }
 
-  item = toml_double_at(array, 0);
-  if(item.ok){
-    // Float list
-    list = ktn(KF, size);
-    kF(list)[0] = item.u.d;
-    for(int i = 1; i!= size; ++i){
-      kF(list)[i] = toml_double_at(array, i).u.d;
-    }
-    return list;
-  }
-
-  item = toml_string_at(array, 0);
-  if(item.ok){
-    // Symbol list
-    list = ktn(KS, size);
-    // Assume the length of symbol does not exceed 64.
-    char symbol[64];
-    strcpy(symbol, item.u.s);
-    free(item.u.s);
-    kS(list)[0] = ss(symbol);
-    for(int i = 1; i!= size; ++i){
-      item = toml_string_at(array, i);
-      strcpy(symbol, item.u.s);
-      free(item.u.s);
-      kS(list)[i] = ss(symbol);
-    }
-    return list;
-  }
-
-  // List of timestamp is unlikely to exist
-  // Nested array and table are not supported
-  return krr("nyi");
+  return list;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -285,7 +279,7 @@ K load_toml(K file_path_){
 
   // Create a foreign object
   K foreign = ktn(0, 2);
-  kK(foreign)[0]=(K) free_toml_table;
+  kK(foreign)[0]=(K) free_toml_document;
   kK(foreign)[1]=(K) document;
   foreign->t = 112;
 

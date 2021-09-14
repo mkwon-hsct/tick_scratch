@@ -12,7 +12,7 @@ CONFIG=config/tick_architecture.config;
 ## @param $1 line: Line of the tick configuration file delimited by ";".
 function launch(){
   ## Build a launch command
-  LAUNCH_COMMAND=`echo $1 | awk '
+  local LAUNCH_COMMAND=`echo $1 | awk '
     BEGIN{
       COMMAND="./launch_process.sh ";
     }
@@ -34,7 +34,7 @@ function launch(){
 ## @param $1 line: Line of the tick configuration file delimited by ";".
 function terminate(){
   ## Get process type
-  PROCESS_TYPE=`echo $1 | awk -F";" '{print $1}'`;
+  local PROCESS_TYPE=`echo $1 | awk -F";" '{print $1}'`;
   ./terminate_process.sh ${PROCESS_TYPE}
 }
 
