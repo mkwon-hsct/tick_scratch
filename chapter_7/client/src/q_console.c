@@ -80,7 +80,7 @@ K generate(){
   // t\Time
   struct timeval ts;
   gettimeofday(&ts, NULL);
-  kK(data)[0]=ktj(-KP, (ts.tv_sec * 1000000LL + 1000LL * ts.tv_usec) - KDB_TIMESTAMP_OFFSET);
+  kK(data)[0]=ktj(-KP, (ts.tv_sec * 1000000000LL + ts.tv_usec * 1000LL) - KDB_TIMESTAMP_OFFSET);
   // Country
   kK(data)[1]=ks((S) COUNTRIES[rand() % 4]);
   // Byte

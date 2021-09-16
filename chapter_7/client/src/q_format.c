@@ -12,8 +12,6 @@
 //                    Global Variables                   //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-const signed char K_ERROR = -128;
-const signed char K_GENERAL_NULL = 101;
 char BUFFER[2048];
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
