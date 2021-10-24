@@ -1,7 +1,10 @@
-// escape.q
+/
+* @file escape.q
+* @overview Example of escaping from a function.
+\
 
 /
-* @brief Chop a sentence and glind until no one can tell it is the human writing.
+* @brief Chop a sentence and glind until no one can tell it is a human writing.
 * @param sentence {string}
 * @return
 * - string

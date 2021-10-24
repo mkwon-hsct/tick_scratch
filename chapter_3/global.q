@@ -1,13 +1,16 @@
-// global.q
+/
+* @file global.q
+* @overview Example of modifying a global variable.
+\
 
 // System status
-STATUS:`Clean;
+STATUS: `Clean;
 
 // Record of suspicious access
-SUSPICIOUS_ACCESS:();
+SUSPICIOUS_ACCESS: ();
 
 // Counter of trials to change status
-total:0;
+total: 0;
 
 /
 * @brief
@@ -48,11 +51,11 @@ change_status:{[status]
 * Calculate total payment of items in basket based on an amount of items and their prices.
 * @param prices {list of float}: Prices of items in the basket.
 * @note
-* Catastorophic!! 'total' used inside this function overwrites the global variable 'total'.
+* Catastorophic!! `total` used inside this function overwrites the global variable `total`.
 * Also a new global discount was created!!
 \
 calc_basket:{[prices]
-  // Ensure 'prices' is a list
+  // Ensure `prices` is a list
   prices,:();
   discount::$[1 >= count prices; 0; 3 >= count prices; 0.2; 0.3];
   total::0;

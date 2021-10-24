@@ -1,4 +1,7 @@
-// monadic_func.q
+/
+* @file monadic_func.q
+* @overview Example of monadic function.
+\
 
 /
 * @brief Add 1 to an argument
@@ -15,33 +18,33 @@ add_one:{[num]
 
 // func[arg]
 0N!"add_one[42]";
-a:add_one[42];
+a: add_one[42];
 show a;
 
 // func arg
 0N!"Do: add_one 42";
-a:add_one 42;
+a: add_one 42;
 show a;
 
 // func @ arg
 0N!"Do: add_one @ 42";
-a:add_one @ 42;
+a: add_one @ 42;
 show a;
 
 // Since @ is a dyadic function
 // we can use "each-right" with it
 0N!"Do: add_one @/: (42 43; 1 2f)";
-a:add_one @/: (42 43; 1 2f);
+a: add_one @/: (42 43; 1 2f);
 show a;
 
 // @[func; arg]
 0N!"Do: @[add_one; 42]";
-a:@[add_one; 42];
+a: @[add_one; 42];
 show a;
 
 // @[func; arg; catch_func]
 0N!"Do: @[add_one; `a; {[err] \"Catastrophic!: \", err}]";
-a:@[add_one; `a; {[err] "Catastrophic!: ", err}];
+a: @[add_one; `a; {[err] "Catastrophic!: ", err}];
 show a;
 
 func:{[x]

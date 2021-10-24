@@ -4,7 +4,7 @@
 \
 
 /
-* @brief Display course items complementing missing items and altering if necessary.
+* @brief Display items in a course complementing missing ones and altering passed ones if necessary.
 * @param course {dictionary}: Items in the course. Accepted keys are below:
 * - `appetizer
 * - `main (must)
@@ -12,7 +12,7 @@
 * - `drink
 \
 full_course:{[course]
-  // Trim invalid keys.
+  // Remove invalid keys.
   course: (`appetizer`main`dessert`drink inter key course)#course;
   // Main dish is a must.
   if[not `main in key course; '"select main dish before ordering"];

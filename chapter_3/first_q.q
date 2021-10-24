@@ -1,11 +1,14 @@
-// first_q.q
+/
+* @file first_q.q
+* @overview Example of q file.
+\
 
-a:42 //a is now 42
+a: 42 // a is now 42
 /
 These lines are ignored
 a: 100
 \
-//"show" writes the argument to standard out
+// "show" writes the argument to standard out
 show a;
 
 // Continue the expression to the next line
