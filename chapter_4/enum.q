@@ -60,7 +60,7 @@ enum_bird:{[bird]
 * @brief Try to execute `blackbox` function.
 * @return 
 * - string: Error message from `blackbox`.
-* - dynamic: Successful result from `blackbox`.
+* - any: Successful result from `blackbox`.
 \
 naive_handler:{[coin]
   result:@[blackbox; coin; {[err] (`failure; err)}];
@@ -71,7 +71,7 @@ naive_handler:{[coin]
 * @brief Try to execute `blackbox` function.
 * @return 
 * - string: Error message from `blackbox`.
-* - dynamic: Successful result from `blackbox`.
+* - any: Successful result from `blackbox`.
 \
 enum_handler:{[coin]
   result:@[blackbox; coin; {[err] (FAILURE_; err)}];
@@ -88,5 +88,5 @@ enum_handler:{[coin]
 \
 blackbox:{[coin]
   if[coin = 777; '"Unlucky!!"];
- `a`b!-2#coin?`success`failure 
+  `a`b!-2#coin?`success`failure 
  }

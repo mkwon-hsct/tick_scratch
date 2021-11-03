@@ -14,7 +14,7 @@ exercise_2:{[]
 //  5000 5000 2000 1200 1000 3000 500 1000 3000 800;
 //  2019.10.01 2019.10.13 2019.10.28 2019.10.03 2019.10.20 2019.10.30 2019.10.18 2019.10.02 2019.10.20 2019.10.07)
 
-// expense: update date:2019.10.05 from expense_orig
+// expense: delete date from expense_orig
 exercise_3:{[]
   .Q.dpft[`:.; 2019.10.05; `person; `expense]
  };

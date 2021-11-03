@@ -1,20 +1,23 @@
-// namespace_depth.q
+/
+* @file namespace_depth.q
+* @overview Reveal the depth of the namespace.
+\
 
 /
-* Types of columns of table1
-* # Keys
+* @brief Types of columns of table1
+* @keys
 * - time: Access time
 * - host: Source host
 * - user: User name
 * - permission: Kind of permission
-* # Note
+* @note
 * New keys will be added.
 \
 table1_column_types:`time`host`user`permission!"PSSI";
 
 /
-* Types of columns of table2
-* # Keys
+* @brief Types of columns of table2
+* @keys
 * - time: Trade time
 * - sym: Company name
 * - price: Traded price
@@ -23,8 +26,7 @@ table1_column_types:`time`host`user`permission!"PSSI";
 table2_column_types:`time`sym`price`size!"PSFJ";
 
 /
-* Root dictionary of column types by table.
-*  New table will be added.
+* @brief Root dictionary of column types by table. New table will be added.
 \
 .depth.column_types:`table1`table2!(table1_column_types; table2_column_types);
 

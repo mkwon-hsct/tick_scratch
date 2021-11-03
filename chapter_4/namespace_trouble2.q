@@ -1,11 +1,14 @@
-// namespace_trouble2.q
+/
+* @file namespace_trouble2.q
+* @overview Demonstrate vulnerability bf \d by contaminating global namespace of another file.
+\
 
-// Move to 'space2'
+// Move to `space2`
 \d .space2
 
 // Local
-ILLUSION:10000;
-MAGIC:1978;
+ILLUSION: 10000;
+MAGIC: 1978;
 
 // Load namespace_trouble library
 // Catastrophic! TRAFFIC is no longer global!
@@ -21,5 +24,5 @@ illusion:{[]
   -1 "Super illusion!!: ", string ILLUSION;
  };
 
-// Close namespace 'space2'
+// Close namespace `space2`
 \d .
