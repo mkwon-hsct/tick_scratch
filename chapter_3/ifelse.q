@@ -51,5 +51,5 @@ only_long:{[arg]
     string arg;
     '"The argument must be either long or list of long"
   ]
- };
+ }
  

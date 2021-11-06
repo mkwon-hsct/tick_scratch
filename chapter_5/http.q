@@ -1,7 +1,6 @@
 /
 * @file http.q
-* @overview
-* Defines event handlers for HTTP requests.
+* @overview Defines event handlers for HTTP requests.
 \
 
 // Run on port 5000
@@ -10,13 +9,13 @@ system "p 5000";
 /
 * @brief Enum indicating request execution failure.
 \
-EXECUTION_STATUS_:`SUCCESS`FAILURE;
-EXECUTION_FAILURE_:`EXECUTION_STATUS_$`FAILURE;
+EXECUTION_STATUS_: `SUCCESS`FAILURE;
+EXECUTION_FAILURE_: `EXECUTION_STATUS_$`FAILURE;
 
 /
 * @brief Table to store posted data via HTTP.
 \
-POSTED_DATA:flip `time`user`article!"ps*"$\:();
+POSTED_DATA: flip `time`user`article!"ps*"$\:();
 
 /
 * @brief Generate fibonnaci sequence of n elements.
@@ -56,7 +55,7 @@ fibonacci:{[n]
     ];
     [
       // Successful request.
-      // Compress if it si required.
+      // Compress if it is required.
       result: $[compress; -35!(7; .Q.s1 result); .Q.s1 result];
       .h.hn["200"; `txt; result]
     ]
@@ -64,7 +63,7 @@ fibonacci:{[n]
  }
 
 /
-* @brief Convert a post into dictionary which was sent via HTTP.
+* @brief Convert a post sent via HTTP into dictionary.
 * @param text_and_header {compound list}: Tuple of (endpoint and text; header).
 * @note
 * curl example message is below:

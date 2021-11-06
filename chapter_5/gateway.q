@@ -1,7 +1,6 @@
 /
 * @file gateway.q
-* @overview
-* Defines gateway functionality.
+* @overview Defines gateway functionality.
 \
 
 /
@@ -17,7 +16,7 @@ WORKERS: hopen each `$":" sv/: (""; ""),/: enlist each COMMANDLINE_ARGS `dbports
 /
 * @brief Event handler of socket close. Remove socket if database process goes down.
 \
-.z.pc:{[socket] WORKERS _: socket;};
+.z.pc:{[socket] WORKERS _: socket;}
 
 /
 * @brief ID of query.
@@ -40,7 +39,7 @@ WORKER_TO_QUERY: (`int$())!();
 * @param args {compound list}: List of arguments.
 \
 query:{[function;args]
-  // Block client til response is ready.
+  // Block client til response gets ready.
   -30!(::);
   // Register client with the ID.
   CLIENT_TO_QUERY[.z.w]: QUERY_ID;
@@ -61,14 +60,14 @@ query:{[function;args]
 * @param error_indicator {bool}: True if execution failed.
 \
 callback:{[result; error_indicator]
-  // Retrieve query ID from the worker queue.
+  // Retrieve a query ID from the worker queue.
   queryID: first WORKER_TO_QUERY .z.w;
-  // Remove query ID from the worker queue.
+  // Remove the query ID from the worker queue.
   WORKER_TO_QUERY[.z.w] _: 0; 
-  // Identify client with the query ID.
+  // Identify a client with the query ID.
   client: CLIENT_TO_QUERY?queryID;
-  // Remove client.
+  // Remove the client.
   CLIENT_TO_QUERY _: client;
-  // Return result to client.
+  // Return the result to client.
   -30!(client; error_indicator; result);
- };
+ }

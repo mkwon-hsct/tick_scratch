@@ -13,17 +13,15 @@ SUSPICIOUS_ACCESS: ();
 total: 0;
 
 /
-* @brief
-* Increment the counter of visitors.
+* @brief Increment the counter of visitors.
 \
 enter:{[]
   -1 "Hello.";
   total::total+1;
- };
+ }
 
 /
-* @brief
-* Change status of system to a passed value. Access count is incremented.
+* @brief Change status of system to a passed value. Access count is incremented.
 * @param status {symbol}: Target status. Either of `Clean or `Unclean.
 \
 change_status:{[status]
@@ -44,14 +42,12 @@ change_status:{[status]
     ]
     
   ];
- };
+ }
 
 /
-* @brief
-* Calculate total payment of items in basket based on an amount of items and their prices.
+* @brief Calculate total payment of items in basket based on an amount of items and their prices.
 * @param prices {list of float}: Prices of items in the basket.
-* @note
-* Catastorophic!! `total` used inside this function overwrites the global variable `total`.
+* @note Catastorophic!! `total` used inside this function overwrites the global variable `total`.
 * Also a new global discount was created!!
 \
 calc_basket:{[prices]
@@ -68,4 +64,4 @@ calc_basket:{[prices]
   } each prices;
   STATUS::`Done;
   -1 string[STATUS], ". total payment is: ", string total;
- };
+ }

@@ -4,11 +4,11 @@
 \
 
 /
-* @brief Sums up all argumants 
-* @param a1 {long | list of long | float | list of float}: some number
-* @param a2 {long | list of long | float | list of float}: some number
-* @param a3 {long | list of long | float | list of float}: some number
-* @param a4 {long | list of long | float | list of float}: some number
+* @brief Sums up all argumants.
+* @param a1 {long | list of long | float | list of float}: some number.
+* @param a2 {long | list of long | float | list of float}: some number.
+* @param a3 {long | list of long | float | list of float}: some number.
+* @param a4 {long | list of long | float | list of float}: some number.
 * @return
 * - (list of) long IF all arguments are long
 * - (ist of) float IF any argument is float
@@ -17,7 +17,7 @@ sum_all:{[a1;a2;a3;a4]
   a1+:a2;
   a1+:a3;
   a1+a4
- };
+ }
 
 // func[arg_1; arg_2; ...; arg_n]
 -1!"Do: sum_all[10; 20; 30; 40]";

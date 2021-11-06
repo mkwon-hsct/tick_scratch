@@ -15,7 +15,7 @@
 \
 record:{[time]
  -1 "Why was he dancing at ", string[time], " while I was sleeping?";
- };
+ }
 
 // Wait until subprocess becomes ready.
 sleep 1;

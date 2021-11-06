@@ -16,12 +16,12 @@ MAGIC: 1978;
 magic:{[]
   // No need to append namespace prefix to MAGIC
   -1 "Super magic!!: ", string MAGIC;
- };
+ }
 
 // Which ILLUSION is this function using??
 illusion:{[]
   -1 "Super illusion!!: ", string ILLUSION;
- };
+ }
 
 // Close namespace `space2`
 \d .

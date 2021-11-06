@@ -10,8 +10,7 @@ global_f:{[arg] -1 "Global. Passed argument was: ", string arg;};
 /
 * @brief Add globally defined `a` to num.
 * @param num {long}: Some number.
-* @return
-* - long
+* @return long
 \
 add_global_a:{[num]
   a+num
@@ -20,8 +19,7 @@ add_global_a:{[num]
 /
 * @brief Add locally defined `a` to num.
 * @param num {long}: Some number.
-* @return
-* - long
+* @return long
 \
 add_local_a:{[num]
   // Hides globaly defined `a`
@@ -32,8 +30,7 @@ add_local_a:{[num]
 /
 * @brief Show the passed argument with a global function.
 * @param arg {any atom}: Argument to print.
-* @return
-* - general null
+* @return general null
 \
 print:{[arg]
   global_f[arg]
@@ -42,8 +39,7 @@ print:{[arg]
 /
 * @brief Try to use locally defined `b` inside a local function.
 * @param num {long}: Some number.
-* @note
-* This function should fail
+* @note This function should fail.
 \
 add_b_fail:{[num]
   // Define local variable
@@ -55,8 +51,7 @@ add_b_fail:{[num]
 /
 * @brief Use locally defined `b` inside a local function by passing it as an argument of the function.
 * @param num {long}: Some number.
-* @return
-* - long
+* @return long
 \
 add_b_success:{[num]
   // Define local variable

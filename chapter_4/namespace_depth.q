@@ -10,8 +10,7 @@
 * - host: Source host
 * - user: User name
 * - permission: Kind of permission
-* @note
-* New keys will be added.
+* @note New keys will be added.
 \
 table1_column_types:`time`host`user`permission!"PSSI";
 

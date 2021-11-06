@@ -1,7 +1,6 @@
 /
 * @file websocket.q
-* @overview
-* Defines event handlers for websocket communication.
+* @overview Defines event handlers for websocket communication.
 \
 
 // Run on port 5000 if port is not specified.
@@ -10,11 +9,11 @@ if[not system "p"; system "p 5000"];
 /
 * @brief Enum indicating request execution failure.
 \
-EXECUTION_STATUS_:`SUCCESS`FAILURE;
-EXECUTION_FAILURE_:`EXECUTION_STATUS_$`FAILURE;
+EXECUTION_STATUS_: `SUCCESS`FAILURE;
+EXECUTION_FAILURE_: `EXECUTION_STATUS_$`FAILURE;
 
 /
-* @brief Notice the establishment of connection. 
+* @brief Notify the establishment of connection. 
 * @param socket {int}: Client handle.
 \
 .z.wo:{[socket]
@@ -22,7 +21,7 @@ EXECUTION_FAILURE_:`EXECUTION_STATUS_$`FAILURE;
  }
 
 /
-* @brief Notice the close of the connection.
+* @brief Notify the close of the connection.
 * @param socket {int}: Client handle.
 \
 .z.wc:{[socket]
@@ -37,7 +36,7 @@ EXECUTION_FAILURE_:`EXECUTION_STATUS_$`FAILURE;
 .z.ws:{[query]
   result: .Q.trp[.j.k; query; {[error; trace] (EXECUTION_FAILURE_; "Error: ", error, "\n", .Q.sbt trace)}];
   $[any EXECUTION_FAILURE_ ~/: result; 
-    // Not valid JSON
+    // Not a valid JSON
     neg[.z.w] result 1; 
     // JSON
     [

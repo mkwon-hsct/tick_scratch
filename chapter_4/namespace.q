@@ -7,7 +7,7 @@
 PI: acos -1;
 
 /
-* Table to contain results of conversion between cartesian to pollar system.
+* @brief Table to contain results of conversion between cartesian to pollar system.
 * @columns
 * - cartesian {list of float} Point in cartesian coordinate.
 * - pollar {list of float} Point in pollar coordinate.
@@ -15,8 +15,7 @@ PI: acos -1;
 .coordinates.HISTORY: flip `cartesian`pollar!"**"$\:();
 
 /
-* @brief
-* Calculate a distance of two points expressed in cartesian coordeinates.
+* @brief Calculate a distance of two points expressed in cartesian coordeinates.
 * @param cart1 {list of float}: point in cartesian coordinates space.
 * @param cart2 {list of float}: point in cartesian coordinates space.
 * @return float
@@ -26,8 +25,7 @@ PI: acos -1;
  }
 
 /
-* @brief
-* Calculate a distance of two points expressed in pollar coordeinates.
+* @brief Calculate a distance of two points expressed in pollar coordeinates.
 * @param cart1 {list of float}: point in pollar coordinates.
 * @param cart2 {list of float}: point in pollar coordinates.
 * @return float
@@ -38,8 +36,7 @@ PI: acos -1;
  }
 
 /
-* @brief
-* Convert cartesian coordibates into pollar coordinates.
+* @brief Convert cartesian coordibates into pollar coordinates.
 * @param cart {list of float}: point in cartesian coordinates space.
 * @return list of float
 \
@@ -68,8 +65,7 @@ PI: acos -1;
  }
 
 /
-* @brief
-* Convert pollar coordibates into cartesian coordinates.
+* @brief Convert pollar coordibates into cartesian coordinates.
 * @param pollar {list of float}: point in pollar coordinates space.
 * @return list of float
 \
@@ -82,8 +78,7 @@ PI: acos -1;
 
 // Calculation test
 /
-* @brief
-* Test conversion between cartesian and pollar coordinates and their calculations of distance
+* @brief Test conversion between cartesian and pollar coordinates and their calculations of distance
 * @param cart1 {list of float}: point in cartesian coordinates space
 * @param cart2 {list of float}: point in cartesian coordinates space
 * @return boolean

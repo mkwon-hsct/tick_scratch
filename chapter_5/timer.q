@@ -1,7 +1,6 @@
 /
 * @file timer.q
-* @overview
-* Example of concurrent timer events.
+* @overview Example of concurrent timer events.
 \
 
 /
@@ -20,11 +19,12 @@ SIGNAL: `green;
 IN_ACCIDENT: 0b;
 
 /
-* @brief Table of instructions to execute with a timer. Items are:
+* @brief Table of instructions to execute with a timer.
+* @columns
 * - instruction {symbol}: Name of the function.
 * - args {compound list}: List of arguments of the function.
 * - interval {long}: Interval to execute the function.
-* - next_execution {timestamp}: Next scheduled time.
+* - next_execution {timestamp}: Next execution time.
 * - active {bool}: Indicator of whether the instruction is active or not.
 \
 INSTRUCTIONS: flip `instruction`args`interval`next_execution`active!"s*jpb"$\:();
@@ -35,7 +35,7 @@ INSTRUCTIONS: flip `instruction`args`interval`next_execution`active!"s*jpb"$\:()
 LAST_EXECUTION_TIME:0Np;
 
 /
-* @brief Switch traffic signal.
+* @brief Switch a traffic signal.
 * @param current_signal {symbol}: Current status of the signal.
 \
 switch:{[current_signal]
@@ -63,7 +63,7 @@ go: {[signal; in_accident]
 * @param active {bool}: Indicator of whether the instruction is active or not.
 \
 register_instruction:{[name; args; interval; active]
-  next_execution: $[null LAST_EXECUTION_TIME; 0Np; LAST_EXECUTION_TIME+`timespan$1e9 + interval % 1000];
+  next_execution: $[null LAST_EXECUTION_TIME; 0Np; LAST_EXECUTION_TIME+`timespan$1e9 * interval % 1000];
   `INSTRUCTIONS insert (name; args; `long$interval; next_execution; active);
  };
 
@@ -82,7 +82,7 @@ maintenance:{[]
   SIGNAL:: `red;
   // Deactivate `switch` function.
   update active: 0b from `INSTRUCTIONS where instruction = `switch;
-  -1 "In mentenace. Sorry for inconvenience m(_ _)m";
+  -1 "In mainntenace. Sorry for inconvenience m(_ _)m";
  };
 
 /
@@ -90,15 +90,14 @@ maintenance:{[]
 \
 .z.ts:{[now]
   if[null LAST_EXECUTION_TIME;
-    update next_execution: now + `timespan$1e9 + interval % 1000 from `INSTRUCTIONS;
+    update next_execution: now + `timespan$1e9 * interval % 1000 from `INSTRUCTIONS;
     LAST_EXECUTION_TIME::now;
     :()
   ];
   IN_ACCIDENT:: first 1?01b;
   -1 string[now], $[IN_ACCIDENT; " ### Accident!! Close the road!!"; " ### Clear road, clear sky."];
   to_run: exec instruction, args, i from INSTRUCTIONS where active and next_execution <= now;
-  if[0 = count to_run `x; :()];
-  // Retrieve values under variable names and execute with them.
+  // Retrieve values under variable names and execute an instruction with them.
   {[pair] .[pair 0; get each pair 1]} each flip to_run `instruction`args;
   update next_execution: now + `timespan$1e9 * interval % 1000 from `INSTRUCTIONS where i in to_run[`x];
   LAST_EXECUTION_TIME::now;

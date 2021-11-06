@@ -1,20 +1,20 @@
 /
-* @file: 2.q
-* @overview: Provide examples of event handlers for process2.
+* @file basic_ipc_process2.q
+* @overview Provide examples of event handlers for process2.
 \
 
 // Open port 5000
 system "p 5000";
 
 /
-* @brief Does authetication with user name and password.
+* @brief Conduct authetication with user name and password.
 * @param username {symbol}: Username.
 * @param password {string}: Password.
 \
 .z.pw:{[username;password] (username in `mattew`john`mark`luke) and password ~ "ZXRlcm5hbF9saWZl"}
 
 /
-* @brief Notice handle open on console and send back greetings to the client.
+* @brief Notify handle open on console and send back greetings to the client.
 * @param socket {int}: Client handle.
 \
 .z.po:{[socket]
@@ -31,8 +31,8 @@ system "p 5000";
  }
 
 /
-* @brief Notice an arrival of a synchronous message from some user and sends bask response.
-* @param query {dynamic}
+* @brief Notify an arrival of a synchronous message from some user and sends bask response.
+* @param query {any}
 * - string: Text query.
 * - compound list: Functional query.
 \
@@ -44,8 +44,8 @@ system "p 5000";
  }
 
 /
-* @brief Notice an arrival of an asynchronous message from some user and sends bask response after executing it.
-* @param query {dynamic}
+* @brief Notify an arrival of an asynchronous message from some user and sends back a response after evaluating it.
+* @param query {any}
 * - string: Text query.
 * - compound list: Functional query.
 \

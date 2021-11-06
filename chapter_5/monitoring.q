@@ -9,14 +9,14 @@ TARGET_SOKET: hopen `$":" sv (""; ""; string TARGET_PORT);
 PARENT_SOCKET: (::);
 
 /
-* @brief Register a socket of parent process.
+* @brief Register the socket of parent process.
 \
 .z.po:{[socket]
   PARENT_SOCKET::socket;
  };
 
 /
-* @brief Check staus of a targeta and trigger a function in the parent process if
+* @brief Check the status of a targeta and trigger a function in the parent process if
 *  the target is dancing. 
 \
 .z.ts:{[now]

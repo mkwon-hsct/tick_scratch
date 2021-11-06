@@ -25,7 +25,7 @@ instruction:{[signal]
     // others
     "Do it well."
   ]
- };
+ }
 
 // Close namespace `space1`
 \d .

@@ -43,9 +43,9 @@ pollar.distance:{[pollar1; pollar2]
 * @brief Convert cartesian coordibates into pollar coordinates.
 * @param cart {list of float}: point in cartesian coordinates space.
 * @return list of float
-* # Note
-* This code does not work because it cannot find the global variable `PI` in this scope!!
-* This function should also fail due to namespace illusion.
+* @note
+* - This code does not work because it cannot find the global variable `PI` in this scope!!
+* - This function should also fail due to namespace illusion.
 \
 cart_to_pollar:{[cart]
   // (r; theta)
@@ -75,7 +75,7 @@ cart_to_pollar:{[cart]
 * @brief Convert pollar coordibates into cartesian coordinates.
 * @param pollar {list of float}: point in pollar coordinates space.
 * @return list of float
-* This function should fail due to namespace illusion.
+* @note This function should fail due to namespace illusion.
 \
 pollar_to_cart:{[pollar]
   // (r * cos(theta); r * sin(theta))
@@ -94,8 +94,7 @@ pollar_to_cart:{[pollar]
 * @param cart1 {list of float}: point in cartesian coordinates space.
 * @param cart2 {list of float}: point in cartesian coordinates space.
 * @return boolean
-* @note
-* This code uses functions which are defined under 'coordinates' namespace.
+* @note This code uses functions which are defined under 'coordinates' namespace.
 \
 distance_test:{[cart1; cart2]
   // Calculate distance for cartesian coordinates
@@ -122,12 +121,10 @@ distance_test:{[cart1; cart2]
 \d .coordinates
 
 /
-* @brief
-* Convert pollar coordibates into cartesian coordinates.
+* @brief Convert pollar coordibates into cartesian coordinates.
 * @param pollar {list of float}: point in pollar coordinates space.
 * @return list of float
-* @note
-* This function correctly refers 'HISTORY' object.
+* @note This function correctly refers 'HISTORY' object.
 \
 pollar_to_cart_rvsd:{[pollar]
   // (r * cos(theta); r * sin(theta))
@@ -140,8 +137,7 @@ pollar_to_cart_rvsd:{[pollar]
 * @brief Convert cartesian coordibates into pollar coordinates.
 * @param cart {list of float}: point in cartesian coordinates space.
 * @return list of float
-* @note
-* This code accesses the global variable `PI` with namespace dictionary.
+* @note This code accesses the global variable `PI` with namespace dictionary.
 \
 cart_to_pollar_rvsd:{[cart]
   // (r; theta)
@@ -175,8 +171,7 @@ cart_to_pollar_rvsd:{[cart]
 * @param cart1 {list of float}: point in cartesian coordinates space.
 * @param cart2 {list of float}: point in cartesian coordinates space.
 * @return boolean
-* @note
-* This code uses functions which are defined under `coordinates` namespace.
+* @note This code uses functions which are defined under `coordinates` namespace.
 \
 distance_test_rvsd:{[cart1; cart2]
   // Calculate distance for cartesian coordinates

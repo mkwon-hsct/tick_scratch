@@ -1,11 +1,11 @@
 /
-* @file: basic_ipc_process1.q
-* @overview: Provide examples of event handlers for process1.
+* @file basic_ipc_process1.q
+* @overview Provide examples of event handlers for process1.
 \
 
 /
-* @brief Notice an arrival of a new asynchronous message and execute it.
-* @param query {dynamic}: 
+* @brief Notify an arrival of a new asynchronous message and execute it.
+* @param query {any}: 
 * - string: Text query.
 * - compound list: Functional query.
 \

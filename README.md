@@ -19,7 +19,7 @@ ISBN： //TODO
 - OS: Linux
 - Distribution: CentOS7 (x86-64)
 - Kernel: 3.10.0-1160.25.1.el7.x86_64 (2021)
-- q/kdb+ >= 4.0 (2021.07.12)
+- q/kdb+: 4.0 (2021.07.12)
 
 ## License
 
