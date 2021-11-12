@@ -16,10 +16,8 @@
 
 /
 * @brief Dictionary of sockets of connection managers.
-* @keys
-* Handles of connection detail.
-* @values
-* Sockets of the connection managers.
+* @keys {symbol}: Handles of connection detail.
+* @values {int}: Sockets of the connection managers.
 \
 CONNECTION_MANAGERS: (`symbol$())!`int$();
 
@@ -67,7 +65,7 @@ register_connection_manager:{[host;port]
   handle: hsym `$":" sv (host; port);
   .log.info["peer connection manager notified of a new connection"; handle];
   CONNECTION_MANAGERS[handle]: .z.w;
- };
+ }
 
 /
 * @brief Connect to a peer connection manager and register the socket if
@@ -93,7 +91,7 @@ connect_peer_manager:{[peer]
     `PRODUCER insert update socket: 0Ni from socket (get; `PRODUCER);
     `CONSUMER insert update socket: 0Ni from socket (get; `CONSUMER)
   ];
- };
+ }
 
 /
 * @brief Register a producer.
@@ -105,7 +103,7 @@ connect_peer_manager:{[peer]
 \
 register_producer:{[socket;name;host;port;channel]
   `PRODUCER insert (socket; name; host; port; channel);
- };
+ }
 
 /
 * @brief Register a consumer.
@@ -118,7 +116,7 @@ register_producer:{[socket;name;host;port;channel]
 \
 register_consumer:{[socket;name;host;port;channel;topics]
   `CONSUMER insert (socket; name; host; port; channel; topics);
- };
+ }
 
 /
 * @brief Delete a record of a client who dropped in a remote host.
@@ -127,17 +125,17 @@ register_consumer:{[socket;name;host;port;channel;topics]
 \
 delete_client:{[table;host_;port_]
   delete from table where (host,' port) ~\: (host_, port_);
- };
+ }
 
 /
 * @brief Load accounts of processes. 
 \
 load_accounts:{[]
   {[name;val] setenv[`$name; val]} ./: ":" vs/: read0 `:config/account.config;
- };
+ }
 
 /
-* @brief Delete a record of the dropped client from producer and consumer table.
+* @brief Delete a record of the dropped client from producer and consumer tables.
 * @param socket_ {int}: Socket of the dropped client.
 \
 .z.pc:{[socket_]
@@ -171,7 +169,7 @@ load_accounts:{[]
       
     ]
   ];
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                       Interface                       //
@@ -185,8 +183,7 @@ load_accounts:{[]
 * - false: Consumer 
 * @param channel_ {symbol}: Channel name.
 * @param topics_ {symbol list}: Topic names.
-* @return 
-* - table: Matched consumer/producer information.
+* @return table: Matched consumer/producer information.
 \
 .cmng.register:{[name_;side;channel_;topics_]
   host_port: getenv each `$string[name_],/: ("_host"; "_port");
@@ -211,7 +208,7 @@ load_accounts:{[]
       select name, host, port, channel from PRODUCER where channel = channel_, not name = name_
     ]
   ]
- };
+ }
 
 /
 * @brief Generate a unique channel name and returns it with the target's host and port.
@@ -233,7 +230,7 @@ load_accounts:{[]
       (host_port, channel)
     ]
   ]
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //

@@ -1,6 +1,6 @@
 /
 * @file connection_manager_api.q
-* @overview Define API to access a connection manager.
+* @overview Define API to interact with the connection manager.
 \
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -39,10 +39,10 @@ CONNECTION_MANAGER_SOCKET: {[]
 CONNECTION: flip `host`port`socket!"**i"$\:();
 
 /
-* @brief Table holding sockets for a combination of a channel and a topic.
+* @brief Table holding sockets used for each pair of channel and topic.
 * @columns
 * - channel {symbol}: Target channel of a message.
-* - topic {topic}: Topic of the message.
+* - topic {topic}: Topic of a message.
 * - sockets {list of int}: Target sockets for the channel and the topic.
 * @note Add a dummy record to fix the type of sockets as a list of int.
 \
@@ -50,8 +50,8 @@ CONSUMER_FILTERS: 2!flip `channel`topic`sockets!(enlist `; enlist `; enlist `int
 
 /
 * @brief Map from a target name to a unique channel.
-* @key symbol: Target user name.
-* @value symbol: Channel name used for the chat with the target.
+* @keys {symbol}: Target user name.
+* @values {symbol}: Channel name used for the chat with the target.
 \
 PRIVATE_MESSAGE_CHANNEL: (`$())!`$();
 
@@ -65,21 +65,20 @@ SYSTEM_LOG_EXCLUDED_PROCESS: "tickerplant*";
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /
-* @brief A process/user calls this function remotely to notify the counter party
-*  that a new connection was established. Register the host, the port and a socket
-*  of the caller.
+* @brief Register the host, port and socket of a process who called this function remotely
+*  at the establishment of a new connection.
 * @param host {string}: Host of the caller.
 * @param port {string}: Port of the caller.
 \
 register_counter_party:{[host; port]
   `CONNECTION insert (enlist host; enlist port; .z.w);
- };
+ }
 
 /
 * @brief Add channel, topics and socket to `CONSUMEMR_FILTERS`.
 * @param channel {symbol}: Channel.
 * @param topics {list of symbol}: Topics in which the consumer is interested.
-* @param remote {bool}: Called remotely.
+* @param remote {bool}: Flag of whether this function was called remotely.
 * @param socket {int}: Socket of the target if called locally: null otherwise.
 \
 add_consumer_filter:{[channel;topics;remote;socket]
@@ -89,11 +88,11 @@ add_consumer_filter:{[channel;topics;remote;socket]
     // Replace the value (`sockets![list of int]) with the new value of the same type.
     CONSUMER_FILTERS[(channel; topic)]: @[CONSUMER_FILTERS[(channel; topic)]; `sockets; {[existing;new] distinct existing, new}; socket];
   } ./: filters;
- };
+ }
 
 /
 * @brief Start connection from a matched record if it has not been connected.
-* @param matched {dictionary}: Record of matched user/process.
+* @param matched {dictionary}: Record of matched user/process. Valid keys are:
 * - name {symbol}: Account name of conterparty.
 * - host {string}: Host of the target.
 * - port {string}: Port of the target.
@@ -137,7 +136,7 @@ connect_and_register:{[matched;topics]
     socket (`add_consumer_filter; matched `channel; topics; 1b; 0Ni)
   ];
  
- };
+ }
 
 /
 * @brief Delete a socket from `CONSUMER_FILTERS`.
@@ -153,14 +152,14 @@ delete_socket_from_filters:{[socket_]
       CONSUMER_FILTERS[(channel_; topic_)]: @[CONSUMER_FILTERS[(channel_; topic_)]; `sockets; except; socket_]
     ];
   }[socket_] ./: keys_and_count; 
- };
+ }
 
 /
 * @brief Delete a record of the dropped counter-party.
 * @param socket_ {int}: Socket of the dropped counter-party.
 \
 .z.pc:{[socket_]
-  handle: hsym `$":" sv first each exec (host; port) from CONNECTION where socket = socket_;
+  handle: hsym `$":" sv value first each exec (host; port) from CONNECTION where socket = socket_;
   if[not handle ~ `:;
     // Registered socket.
     .log.info["connection dropped"; handle];
@@ -168,14 +167,14 @@ delete_socket_from_filters:{[socket_]
     // Delete the socket from filters
     delete_socket_from_filters[socket_]
   ];
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                      Interface                        //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /
-* @brief Register channel as a producer. If there are matched consumers, start communication with them.
+* @brief Register a channel as a producer. If there are matched consumers, start communication with them.
 * @param name {symbol}: User name to connect to the connection manager.
 * @param channel {symbol}: Channel to which publish a message.
 \
@@ -199,10 +198,10 @@ delete_socket_from_filters:{[socket_]
       :()
     ]
   ];
- };
+ }
 
 /
-* @brief Register channel as a consumer. If there are matched producers, start communication with them.
+* @brief Register a channel as a consumer. If there are matched producers, start communication with them.
 * @param name {symbol}: User name to connect to the connection manager.
 * @param channel {symbol}: Channel to subscribe.
 * @topics {list of symbol}: Topics to subscribe.
@@ -223,7 +222,7 @@ delete_socket_from_filters:{[socket_]
       :()
     ]
   ];
- };
+ }
 
 /
 * @brief Publish to `system_log` channel appending a timestamp, caller name, channel and topic.
@@ -236,7 +235,7 @@ delete_socket_from_filters:{[socket_]
 .cmng_api.publish_call_to_system_log:{[time;channel;topic;function;arguments]
   // Ensure `arguments` is a compound list
   -25!(CONSUMER_FILTERS[(`system_log; `all)][`sockets]; `.cmng_api.log_call, time, MY_ACCOUNT_NAME, channel, topic, function, enlist $[0h ~ type arguments; arguments; arguments, (::)]);
- };
+ }
 
 /
 * @brief Call a remote function applying a filter to a channel and topic.
@@ -254,7 +253,7 @@ delete_socket_from_filters:{[socket_]
 .cmng_api.call:{[channel_;topic;function;arguments;is_async]
   sockets: $[topic ~ `;
     // Broadcast to the channel
-    // Ensure the type of sockets is a list of int even if nothhing hits the condition.
+    // Ensure the type of sockets is a list of int even if the condition does not hit anything.
     (`int$()), distinct raze exec sockets from CONSUMER_FILTERS where channel = channel_;
     // Specific topic in the channel
     raze CONSUMER_FILTERS[((channel_; topic); (channel_; `all))][`sockets]
@@ -267,7 +266,7 @@ delete_socket_from_filters:{[socket_]
     -25!(sockets; function, arguments);
     sockets @\: function, arguments
   ]
- };
+ }
 
 /
 * @brief Publish a message applying a filter to a channel and a topic.
@@ -278,26 +277,26 @@ delete_socket_from_filters:{[socket_]
 .cmng_api.publish:{[channel_;topic;table;message]
   sockets: $[topic ~ `;
     // Broadcast to the channel
-    // Ensure the type of sockets is a list of int even if nothhing hits the condition.
+    // Ensure the type of sockets is a list of int even if the condition does not hit anything.
     (`int$()), distinct raze exec sockets from CONSUMER_FILTERS where channel in (channel_; `system_log);
     // Specific topic in the channel
     raze CONSUMER_FILTERS[((channel_; topic); (channel_; `all); (`system_log; `all))][`sockets]
   ];
   -25!(sockets; (`.cmng_api.update; table; (.z.p; topic; MY_ACCOUNT_NAME; message)));
- };
+ }
 
 /
 * @brief Start a private chat with a specific user.
 * @param name {symbol}: User name to connect to the connection manager.
-* @param target {symbol}: Traget user name to talk with.
-* @param is_requester {bool}: Indicates if the caller is a requester.
-* @param channel {symbol}: Chennel to use for the private chat.
+* @param target {symbol}: Target user name to talk with.
+* @oaram is_requester {bool}: Flag of whether the caller is a requester.
+* @param channel {symbol}: Channel to use for the private chat.
 *  - null: Arbitrary value for a request.
 *  - other: Unique value assigned by the connection manager.
 \
 .cmng_api.start_private_chat:{[name;target;is_requester;channel]
 
-  // If this is a request, overwrite with a unique value generated on the connection manager.
+  // If this is a request, overwrite the channel input with a unique value generated on the connection manager.
   if[is_requester;
     result: CONNECTION_MANAGER_SOCKET (`.cmng.process_private_chat_request; name; target);
     $[10h ~ type result;
@@ -320,7 +319,7 @@ delete_socket_from_filters:{[socket_]
     handle: hopen hsym `$":" sv -1 _ result;
     neg[handle] (`.cmng_api.start_private_chat; target; name; 0b; channel)
   ];
- };
+ }
 
 /
 * @brief Publish a message to a specific user in private chat.
@@ -328,4 +327,4 @@ delete_socket_from_filters:{[socket_]
 \
 .cmng_api.publish_private: {[target;message]
   .cmng_api.publish[PRIVATE_MESSAGE_CHANNEL target; `user_chat; `MESSAGE_BOX; message]
- };
+ }
