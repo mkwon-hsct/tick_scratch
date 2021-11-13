@@ -1,6 +1,6 @@
 /
 * @file ping.q
-* @overview Define an event handler for ping message.
+* @overview Define an event handler for ping messages.
 \
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -8,14 +8,13 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /
-* @brief Handler of HTTP request to check a reponse.
+* @brief Handler of HTTP requests to send back an alive signal.
 * @param request {compound list}: Tuple of (endpoint; dictionary of headers).
-* @return 
-* - string: HTTP response.
+* @return string: HTTP response.
 \
 .z.ph:{[request]
   $["ping" ~ request 0;
     .h.hn["200"; `txt; "alive"];
     .h.hn["404"; `txt; "Not Found"]
   ]
- };
+ }

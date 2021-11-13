@@ -39,7 +39,7 @@ LOG_REPLAYER_CHANNEL: `$"hdb_", string .z.h;
 load_HDB:{[]
   .log.info["load HDB"; ::];
   system "l ", getenv `KDB_HDB_HOME;
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                       Interface                       //

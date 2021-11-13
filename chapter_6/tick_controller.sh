@@ -8,7 +8,7 @@
 ## @brief Configuration of tick architecture.
 CONFIG=config/tick_architecture.config;
 
-## @brief Parse a line of the tick configuration and build a command to luanch the process.
+## @brief Parse a line of the tick configuration and build a command to launch the process.
 ## @param $1 line: Line of the tick configuration file delimited by ";".
 function launch(){
   ## Build a launch command
@@ -18,7 +18,7 @@ function launch(){
     }
     {
       SIZE=split($0, line, ";");
-      for(i-1; i<=SIZE; ++i){
+      for(i=1; i<=SIZE; ++i){
         COMMAND=COMMAND line[i] " ";
       }
     }

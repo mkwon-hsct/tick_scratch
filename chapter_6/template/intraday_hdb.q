@@ -47,7 +47,7 @@ load_intraday_HDB:{[]
   // Reload sym file in HDB.
   // HDB can be empty at first.
   sym:: @[get; .Q.dd[HDB_HOME; `sym]; {[error] .log.error[error; ::]}];
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                       Interface                       //

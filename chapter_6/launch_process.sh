@@ -10,7 +10,7 @@
 # - timer: Tickerplant
 # - topics: RDB
 
-## @brief Wrapper to use rlwrap.
+## @brief Wrapper to use nohup with a log file.
 function launch(){
   ## process_yyyymmdd_HHMMSSNNNNNNNNN.log
   local LOGFILE=`echo $1 | sed 's/template/log/g' | tr -d .q`;
