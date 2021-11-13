@@ -24,14 +24,14 @@ TABLES_IN_DB: `MESSAGE_BOX`CALL`ALERT;
 MESSAGE_BOX: flip `time`topic`sender`message!"pss*"$\: ();
 
 /
-* @brief Table to store a remote function call.
+* @brief Table to store remote function calls.
 * @columns
 * - time {timestamp}: Time when the function was called on the caller side.
 * - caller {symbol}: Caller of the function. 
 * - channel {symbol}: Context channel of the call.
 * - topic {symbol}: Context topic of the call.
-* - function {symbol}: Name of a function.
-* - arguments {compound list}: Argumentf passed to the function.
+* - function {symbol}: Name of the function.
+* - arguments {compound list}: Arguments passed to the function.
 \
 CALL: flip `time`caller`channel`topic`function`arguments!"pssss*"$\:();
 

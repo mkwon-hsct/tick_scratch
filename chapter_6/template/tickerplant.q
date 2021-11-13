@@ -64,9 +64,9 @@ LOGFILE_REQUEST_CHANNEL: `$"logfile_request_", string .z.h;
 if[COMMANDLINE_ARGUMENTS `t;
   system "l schema/schema.q";
   // @brief Buffer for storing tables.
-  // @key list of symbol: Tuple of (table; topic).
-  // @value table: Temporary table to store data.
-  TABLE_BUFFER: enlist[``]!enlist (::);
+  // @keys {list of symbol}: Tuple of (table; topic).
+  // @values {table}: Temporary table to store data.
+  TABLE_BUFFER: enlist[``]!enlist (::)
  ];
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -92,7 +92,7 @@ log_roll_check:{[data]
     ACTIVE_LOG set ();
     ACTIVE_LOG_SOCKET:: hopen ACTIVE_LOG
   ];
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                       Interface                       //
@@ -146,10 +146,10 @@ $[COMMANDLINE_ARGUMENTS `t;
   if[10 = type function; function: `$function];
   // Write the data to the log file
   ACTIVE_LOG_SOCKET enlist (`.cmng_api.update; `CALL; (time; caller; channel; topic; function; arguments));
- };
+ }
 
 /
-* @brief Publish buffered table data by topic and table.
+* @brief Publish buffered table data for each pair of topic and table.
 \
 .z.ts:{[now]
   {[table_topic; data]
@@ -157,7 +157,7 @@ $[COMMANDLINE_ARGUMENTS `t;
     // Make table empty
     TABLE_BUFFER[table_topic]: 0#TABLE_BUFFER[table_topic];
   } ./: flip (key; value) @\: TABLE_BUFFER;
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //

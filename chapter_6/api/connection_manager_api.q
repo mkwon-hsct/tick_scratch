@@ -56,7 +56,7 @@ CONSUMER_FILTERS: 2!flip `channel`topic`sockets!(enlist `; enlist `; enlist `int
 PRIVATE_MESSAGE_CHANNEL: (`$())!`$();
 
 /
-* @brief Name pattern of processes which are excluded to publish to `system_log` channel.
+* @brief Name pattern of processes which are excluded from publishers of `system_log` channel.
 \
 SYSTEM_LOG_EXCLUDED_PROCESS: "tickerplant*";
 
@@ -98,7 +98,7 @@ add_consumer_filter:{[channel;topics;remote;socket]
 * - port {string}: Port of the target.
 * - channel {symbol}: Channel name.
 * - (topics) {list of symbol}: Topics in which the target consumer is interested.
-* @param topics {variable}: 
+* @param topics {any}: 
 * - list of symbol: Topics registered to the connection manager this time if the caller is a consumer.
 * - general null: If the caller is a producer
 \
@@ -176,7 +176,7 @@ delete_socket_from_filters:{[socket_]
 /
 * @brief Register a channel as a producer. If there are matched consumers, start communication with them.
 * @param name {symbol}: User name to connect to the connection manager.
-* @param channel {symbol}: Channel to which publish a message.
+* @param channel {symbol}: Channel to publish a message.
 \
 .cmng_api.register_as_producer: {[name;channel]
   // Initialize account name if not defined
@@ -241,9 +241,9 @@ delete_socket_from_filters:{[socket_]
 * @brief Call a remote function applying a filter to a channel and topic.
 * @param channel_ {symbol}: Channel to which call a function.
 * @param topic {symbol}: Topic of the call. Null symbol to broadcast to a channel.
-* @param function {variable}:
+* @param function {any}:
 * - symbol: Name of a remote function to call.
-* - string: Name of built-in function to call.
+* - string: Name of a built-in function to call.
 * @param arguments {any}: List of arguments of the function.
 * @param is_async {bool}: Flag to call the function asynchronously.
 * @return 
@@ -270,7 +270,7 @@ delete_socket_from_filters:{[socket_]
 
 /
 * @brief Publish a message applying a filter to a channel and a topic.
-* @param channel_ {symbol}: Channel to which publish a message.
+* @param channel_ {symbol}: Channel to publish a message.
 * @param topic {symbol}: Topic of the message. Null symbol to broadcast to a channel.
 * @param message {any}: Message to send.
 \
