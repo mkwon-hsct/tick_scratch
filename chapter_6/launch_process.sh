@@ -7,8 +7,8 @@
 # @param $2 port
 # @param $3 username
 # @param $4 
-#  - timer: Tickerplant
-#  - topics: RDB
+# - timer: Tickerplant
+# - topics: RDB
 
 ## @brief Wrapper to use rlwrap.
 function launch(){

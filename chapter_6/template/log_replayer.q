@@ -89,7 +89,7 @@ save_table:{[table]
     // Delete records with the symbol
     ![table_;  enlist (=; sort_column_; enlist symbol); 0b; `symbol$()];
   }[table; sort_column] each symbols;
- };
+ }
 
 /
 * @brief Migrate Intra-day HDB data to HDB while creating a new partition.
@@ -112,7 +112,7 @@ move_to_HDB:{[date;table]
   // Symbol column with which table is partitioned.
   sort_column: TABLE_SORT_KEY table;
   target_column set `p#get target_column: .Q.dd[HDB_HOME; (date; table; sort_column)];
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                       Interface                       //
@@ -120,14 +120,14 @@ move_to_HDB:{[date;table]
 
 /
 * @brief Insert a record to a table.
-* @param table {symbol}: name of a table.
+* @param table {symbol}: Name of a table.
 * @param data {variable}:
-*  - compound list: Single record.
-*  - table: Bunch of records. 
+* - compound list: Single record.
+* - table: Bunch of records. 
 \
 .cmng_api.update:{[table;data]
    table insert data;
- };
+ }
 
 /
 * @brief Delete data in tables at the rolling of log file.
@@ -161,7 +161,7 @@ move_to_HDB:{[date;table]
   .cmng_api.call[INTRADAY_HDB_CHANNEL; `; `.logreplay.reload_on_disk_write; enlist (::); 1b];
   // Unlock Intra-day HDB
   .cmng_api.call[; `; `.logreplay.task_on_rolling_logfile; (.z.h; INTRADAY_HDB_CHANNEL; 0b); 1b] each (RESOURCE_MANAGER_CHANNEL; GATEWAY_CHANNEL);
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //

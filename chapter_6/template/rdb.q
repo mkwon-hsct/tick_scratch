@@ -58,8 +58,8 @@ add_grouping_attribute:{[table]
 * @brief Insert a record to a table.
 * @param table {symbol}: name of a table.
 * @param data {variable}:
-*  - compound list: Single record.
-*  - table: Bunch of records. 
+* - compound list: Single record.
+* - table: Bunch of records. 
 \
 .cmng_api.update:{[table;data]
   $[table ~ `ALERT;
@@ -70,7 +70,7 @@ add_grouping_attribute:{[table]
  };
 
 /
-* @brief Delete data in tables at the rolling of log file.
+* @brief Delete data in tables at the roll out a new of log file.
 * @param logfile_ {symbol}: Handle to the log file cut off by the tickerplant. Not used on RDB side.
 \
 .tickerplant.task_on_rolling_logfile:{[logfile_]

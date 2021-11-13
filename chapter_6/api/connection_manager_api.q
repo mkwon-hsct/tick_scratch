@@ -291,8 +291,8 @@ delete_socket_from_filters:{[socket_]
 * @param target {symbol}: Target user name to talk with.
 * @oaram is_requester {bool}: Flag of whether the caller is a requester.
 * @param channel {symbol}: Channel to use for the private chat.
-*  - null: Arbitrary value for a request.
-*  - other: Unique value assigned by the connection manager.
+* - null: Arbitrary value for a request.
+* - other: Unique value assigned by the connection manager.
 \
 .cmng_api.start_private_chat:{[name;target;is_requester;channel]
 

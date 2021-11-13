@@ -53,8 +53,8 @@ ALERT: flip `time`sender`sender_time`topic`user`message!"pspss*"$\: ();
 
 /
 * @brief Keys to sort tables at intra-day write down. 
-* @key symbol: Table name.
-* @value symbol: Column name used to sort a table.
+* @keys {symbol}: Table name.
+* @values {symbol}: Column name used to sort a table.
 \
 TABLE_SORT_KEY: .[!] flip ( /
   (`MESSAGE_BOX; `topic); /
