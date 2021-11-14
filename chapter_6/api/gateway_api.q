@@ -50,12 +50,12 @@ EXECUTION_FAILURE: `EXECUTION_STATUS$`failure;
 /
 * @brief Wrapper of a function called by the Gateway so that callback function is triggerred at complettion.
 * @param query_id {long}: Query ID.
-* @param function {variable}
+* @param function {any}
 * - symbol: Name of a built-in function to execute.
 * - string: Name of a function to execute which is local to this process.
 * @param arguments {any}: List of arguments.
 * @param topics {list of symbol}: Topics included in the query.
-* @param time_range {timestamp list}: Start time and end time of the queried range.
+* @param time_range {list of timestamp}: Start time and end time of the queried range.
 \
 .gateway.execute:{[query_id;function;arguments;topics;time_range]
   result: @[value; (function; arguments; topics; time_range); {[error] (EXECUTION_FAILURE; string[GATEWAY_CHANNEL], ":", error)}];
@@ -65,4 +65,4 @@ EXECUTION_FAILURE: `EXECUTION_STATUS$`failure;
     // Execution success
     neg[.z.w] (`.gateway.callback; query_id; 0b; result)
   ]
- };
+ }

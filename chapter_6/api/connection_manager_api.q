@@ -238,7 +238,7 @@ delete_socket_from_filters:{[socket_]
  }
 
 /
-* @brief Call a remote function applying a filter to a channel and topic.
+* @brief Call a remote function while applying a filter to a channel and topic.
 * @param channel_ {symbol}: Channel to which call a function.
 * @param topic {symbol}: Topic of the call. Null symbol to broadcast to a channel.
 * @param function {any}:

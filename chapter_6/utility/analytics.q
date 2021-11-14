@@ -23,7 +23,7 @@ load_analytics:{[account_name]
   files: value[setting] where account_name like/: string key setting;
   // Load each file
   {[file] .load.load_file .Q.dd[`:analytics; file]} each files;
- };
+ }
 
 // Load
 load_analytics `$first .Q.opt[.z.X] `user;

@@ -46,8 +46,7 @@ GATEWAY_CHANNEL: `$"user_query_", string .z.h;
 * - columns {list of symbol}: Columns to select. Optional.
 * - keyword {string}: Pattern of a message to search. Optional.
 * - sender {symbol}: Sender of a message to search. Optional.
-* @return
-* - table: Merged table.
+* @return table: Merged table.
 \
 search_message: {[topics;time_range;options]
   // Table is fixed as `MESSAGE_BOX`
@@ -57,7 +56,7 @@ search_message: {[topics;time_range;options]
   // Does not group by default
   if[not `grouping in key options; options[`grouping]: 0b];
   raze .cmng_api.call[GATEWAY_CHANNEL; `query; `.gateway.query; (time_range; topics; `history; options; {[results] delete int, date from (uj/) results}); 0b]
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //

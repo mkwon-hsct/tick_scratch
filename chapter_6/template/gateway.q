@@ -101,10 +101,9 @@ USER_CHANNEL: `$"user_query_", string .z.h;
 /
 * @brief Split time range into sub time ranges according to the time range each kind of database chold.
 * @param time_range {list of timestamp}: Start time and end time of the queried range.
-* @return
-* - dictionary:
-*   - key {symbol}: Channel of database to which query is sent.
-*   - value {list of timestamp}: Start time and end time of the queried range that each kind of database searches.
+* @return dictionary:
+* - keys {symbol}: Channel of database to which query is sent.
+* - values {list of timestamp}: Start time and end time of the queried range that each kind of database searches.
 \
 split_time_range:{[time_range]
   // Set of time range and database
@@ -162,15 +161,15 @@ split_time_range:{[time_range]
   ];
 
   target
- };
+ }
 
 /
-* @brief Tie database socket with query ID and send a query to the database.
+* @brief Tie database socket with a query ID and send a query to the database.
 * @param query_id {long}: Query ID.
 * @param topics: {list of symbol}: Target topics of the query.
-* @param time_range {timestamp list}: Start time and end time of the queried range.
+* @param time_range {list of timestamp}: Start time and end time of the queried range.
 * @param function {symbol}: Function name.
-* @param arguments {any}: List of arguments.
+* @param arguments {compound list}: List of arguments.
 * @param channel {symbol}: Channel of a target databse.
 * @param target {compound list}: List of pairs of (host; port).
 \
@@ -186,23 +185,22 @@ register_and_send_query:{[query_id;topics;function;arguments;channel;targets;tim
   -25!(sockets; (`.gateway.execute; query_id; function; arguments; topics; time_range));
   // Publish to `system_log` channel
   .cmng_api.publish_call_to_system_log[.z.p; channel; `query; `.gateway.execute; (query_id; function; arguments; topics; time_range)];
- };
+ }
 
 /
 * @brief Enqueue a query with its channel, topic and candidates of a target database.
 * @param function {function}: Function.
-* @param arguments {any}: List of arguments.
+* @param arguments {compound list}: List of arguments.
 * @param channel_ {symbol}: Channel to which query is sent.
 * @param topics {list of symbol}: Topics incuded in the query.
 * @param time_range {list of timestamp}: Start time and end time of the queried range.
-* @return
-* - int: Socket of a database.
+* @return int: Socket of a database.
 \
 enqueue_query:{[function;arguments;channel;topics;time_range]
   // Emplty topics must be ignored
   if[not count topics; :()];
   `QUERY_QUEUE insert (QUERY_ID; topics; channel; time_range; function; arguments);
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                       Interface                       //
@@ -216,13 +214,13 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
 \
 .logreplay.task_on_rolling_logfile:{[host;channel_;is_lock]
   LATEST_LOG_ROLLING_TIME +: 01:00:00;
- };
+ }
 
 /
 * @brief Interface which client calls to send a query to database.
 * @param time_range {list of timestamp}: Start time and end time of the selected range.
 * @param function {symbol}: Function name.
-* @param arguments {any}: List of arguments.
+* @param arguments {compound list}: List of arguments.
 * @param merge_instruction {function}: Function to merge results from databases.
 \
 .gateway.query:{[time_range;topics;function;arguments;merge_instruction]
@@ -261,11 +259,11 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
   enqueue_query[function; arguments] ./: flip ((key; {[dictionary] value[dictionary][`queue]}) @\: databases), enlist value target;
 
   QUERY_ID+:1;
- };
+ }
 
 /
 * @param query_id {long}: Query ID.
-* @param error_indicator {bool}: Flag of whether error happenned at the execution.
+* @param error_indicator {bool}: Flag of whether an error happenned at the execution.
 * @param result {any}: Query result from a database.
 \
 .gateway.callback:{[query_id;error_indicator;result]
@@ -273,7 +271,7 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
   // Client cannot send multiple queries since it is blocked.
   `QUERY_STATUS upsert (query_id; .z.w; error_indicator; result);
 
-  // Part of the query is remained in a queue
+  // Check if a part of the query is remained in a queue
   is_queued: count select i from QUERY_QUEUE where id = query_id;
 
   if[(all not (::) ~/: last error_flags_and_results: exec (error; result) from QUERY_STATUS where id = query_id) and not is_queued;
@@ -322,7 +320,7 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
     // Unlock the database and propagate to make it available for everyone
     .cmng_api.call[RESOURCE_MANAGER_CHANNEL; `; `.rscmng.unlock; (channel_; host_; 1b; ::); 1b]
   ];
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //
@@ -336,3 +334,6 @@ enqueue_query:{[function;arguments;channel;topics;time_range]
 
 // Register as an downstream of user process
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; USER_CHANNEL; enlist `all];
+
+// Register as an downstream of Log Replayer process
+.cmng_api.register_as_consumer[MY_ACCOUNT_NAME; LOG_REPLAYER_CHANNEL; enlist `all];

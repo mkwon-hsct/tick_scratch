@@ -31,4 +31,4 @@ history:{[arguments;topics;time_range]
   columns: $[count columns; columns!columns; ()];
   // Simple select.
   ?[arguments `table; where_clause; arguments `grouping; columns]
- };
+ }

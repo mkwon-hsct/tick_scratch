@@ -24,8 +24,8 @@ MY_ACCOUNT_NAME: COMMANDLINE_ARGUMENTS `user;
 
 /
 * @brief Dictionary of sockets of connection managers.
-* - key {symbol}: Handles of connection detail.
-* - value {int}: Sockets of the connection managers.
+* - keys {symbol}: Handles of connection detail.
+* - values {int}: Sockets of the connection managers.
 \
 RESOURCE_MANAGERS: (`symbol$())!`int$();
 
@@ -85,12 +85,12 @@ register_resource_manager:{[host;port]
   handle: hsym `$":" sv (host; port);
   .log.info["peer resource manager notified of a new connection"; handle];
   RESOURCE_MANAGERS[handle]: .z.w;
- };
+ }
 
 /
 * @brief Connect to a peer Resource Manager and register the socket if
 *  the attempt is successful.
-* @param peer {symbol}: Handle composed of [host]:[port].
+* @param peer {symbol}: Handle composed of `[host]:[port]`.
 \
 connect_peer_manager:{[peer]
   handle: `$":", peer;
@@ -114,18 +114,17 @@ connect_peer_manager:{[peer]
     // Update master.
     MASTER_HANDLE:: socket (get; `MASTER_HANDLE)
   ];
- };
+ }
 
 /
 * @brief Select available databases which holds data of specified topics.
 * @param gateway_host: Host of Gateway which called this function.
 * @param hosts {list of symbol}: Target hosts to search available databases.
-* @param topic {symbol}: Topic included in the query.
+* @param topics_ {symbol}: Topic included in the query.
 * @param channel_ {symbol}: Channel to which query is sent.
-* @return
-* - dictionary:
-*   - send: List of pairs of (host; port)
-*   - queue: List of symbol for which database could not be arranged.
+* @return dictionary:
+* - send: List of pairs of (host; port)
+* - queue: List of symbol for which database could not be arranged.
 \
 select_database:{[gateway_host;hosts;topics_;channel_]
   // If hosts are empty, enqueue topics_ and return it.
@@ -154,14 +153,14 @@ select_database:{[gateway_host;hosts;topics_;channel_]
       (`send`queue!(candidates[::; 1 2]; `symbol$())),' .z.s[gateway_host; hosts; remained; channel_]
     ]
   ]
- };
+ }
 
 /
 * @brief Propagate the present value of DATABASE_AVAILABILITY to the other Resource Managers.
 \
 propagate:{[]
   -25!(value[RESOURCE_MANAGERS]; ("set"; `DATABASE_AVAILABILITY; DATABASE_AVAILABILITY));
- };
+ }
 
 /
 * @brief Definition of Connection Manager API.
@@ -196,7 +195,7 @@ Z_PC_: .z.pc;
     // Not peer manager
     Z_PC_[socket_]
   ]
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                       Interface                       //
@@ -210,7 +209,7 @@ Z_PC_: .z.pc;
 \
 .logreplay.task_on_rolling_logfile:{[host_;channel_;is_lock]
   update available: $[is_lock; 0b; 1b] from `DATABASE_AVAILABILITY where host = host_, channel = channel_;
- };
+ }
 
 /
 * @brief Register a returned database as an available resource.
@@ -220,19 +219,18 @@ Z_PC_: .z.pc;
 \
 .rscmng.return:{[host;port;channel]
   `DATABASE_AVAILABILITY insert (host; port; channel; exec topic from CONSUMER_FILTERS where .z.w in/: sockets; 1b);
- };
+ }
 
 /
 * @brief Select available databases for given channel and topics.
 * @param gateway_host: Host of Gateway which called this function.
 * @param target {list of symbol}: Channel of database to which query is sent.
 * @param topics {list of symbol}: Topics included in the query.
-* @return 
-* - dictionary:
-*   - key {Symbol}: Channel of database.
-*   - value {dictionary}:
-*     - send: List of pairs of (host; port)
-*     - queue: List of symbol for which database could not be arranged.
+* @return dictionary:
+* - keys {symbol}: Channel of database.
+* - values {dictionary}:
+*   - send: List of pairs of (host; port)
+*   - queue: List of symbol for which database could not be arranged.
 \
 .rscmng.select_database:{[gateway_host;target;topics]
   // Only master reacts
@@ -251,10 +249,10 @@ Z_PC_: .z.pc;
     propagate[]
   ];
   databases
- };
+ }
 
 /
-* @brief Unlock database with a given host and channel.
+* @brief Unlock a database with a given host and channel.
 * @param channel_ {symbol}: Channel of a database.
 * @param host_ {symbol}: Host of a database.
 * @param propagate_ {bool}: Flag of whether to propagate the availability.
@@ -269,7 +267,7 @@ Z_PC_: .z.pc;
     propagate[];
     value expression
   ]
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //
@@ -284,20 +282,24 @@ Z_PC_: .z.pc;
 // Register as an upstream of databases.
 .cmng_api.register_as_producer[MY_ACCOUNT_NAME] each (RDB_CHANNEL; INTRADAY_HDB_CHANNEL; HDB_CHANNEL);
 
-// Register as a downstream of Gateway.
+// Register as a downstream of databases.
 .cmng_api.register_as_consumer[MY_ACCOUNT_NAME; DATABASE_RETURN_CHANNEL; enlist `return];
 
 // Register databases.
 {[channel_]
   dbs: exec distinct raze sockets from CONSUMER_FILTERS where channel = channel_;
+  // (hosts; ports)
   db_records: exec (`$host; "I"$port) from CONNECTION where socket in dbs;
+  // (hosts; ports; channels)
   db_records,: enlist count[dbs]#`$ssr[string channel_; "monitor"; "query"];
+  // (hosts; ports; channels; list of topics)
   db_records,: enlist {[socket] exec topic from CONSUMER_FILTERS where socket in/: sockets} each dbs;
+  // (hosts; ports; channels; list of topics; availabilities)
   db_records,: enlist count[dbs]#1b;
   `DATABASE_AVAILABILITY insert db_records;
  } each (RDB_CHANNEL; INTRADAY_HDB_CHANNEL; HDB_CHANNEL);
 
-// Connect to peer Resource Managers
+// Connect to peer Resource Managers.
 {[]
   managers: read0 `:config/resource_manager.config;
   // Open self port defined in `resource_manager.config`.
