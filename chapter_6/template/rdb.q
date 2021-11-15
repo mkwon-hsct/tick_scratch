@@ -48,7 +48,7 @@ LOGFILE_REQUEST_CHANNEL: `$"logfile_request_", string .z.h;
 add_grouping_attribute:{[table]
   grouping_column: TABLE_SORT_KEY table;
   ![table; (); 0b; enlist[grouping_column]!enlist (`g#; grouping_column)];
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                       Interface                       //
@@ -57,17 +57,17 @@ add_grouping_attribute:{[table]
 /
 * @brief Insert a record to a table.
 * @param table {symbol}: name of a table.
-* @param data {variable}:
+* @param data {any}:
 * - compound list: Single record.
 * - table: Bunch of records. 
 \
 .cmng_api.update:{[table;data]
   $[table ~ `ALERT;
-    // ALert data. Ignore the information appended by Tickerplant.
+    // Alert data. Ignore the information appended by Tickerplant.
     table insert last data;
     table insert data
   ];
- };
+ }
 
 /
 * @brief Delete data in tables at the roll out a new of log file.
@@ -81,7 +81,7 @@ add_grouping_attribute:{[table]
     // Assign grouping attribute again.
     add_grouping_attribute table;
   } each TABLES_IN_DB;
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //
@@ -107,7 +107,7 @@ ACTIVE_LOG: first .cmng_api.call[LOGFILE_REQUEST_CHANNEL; `log_request; "get"; `
   if[(COMMANDLINE_ARGUMENTS[`topics] ~ enlist `all) or any COMMANDLINE_ARGUMENTS[`topics] in last message;
     value message
   ];
- };
+ }
 // Replay
 -11!ACTIVE_LOG;
 // Discard the filter

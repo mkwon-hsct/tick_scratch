@@ -16,7 +16,7 @@ ABOMINATION: ("*death*"; "*crow*"; "*vulture*"; "*chameleon*"; "*grasshopper*"; 
 /
 * @brief Detect abominable things in a chat message and fire an alert.
 * @param channel {symbol}: Channel to publish an alert.
-* @param message {variable}:
+* @param message {any}:
 * - compound list: Tuple of (sender timestamp; topic; sender; message).
 * - table: Table whose columns are (sender timestamp; topic; sender; message).
 \
@@ -36,4 +36,4 @@ detect_abomination:{[channel;message]
       .cmng_api.publish[channel; `alert; `ALERT; (.z.p; MY_ACCOUNT_NAME), message]
     ]
   ];
- };
+ }

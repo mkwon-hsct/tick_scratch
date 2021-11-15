@@ -40,7 +40,7 @@ VOID_CHANNEL: `$"_dev_null_", string .z.h;
 
 .cmng_api.update: {[table;message]
   if[table ~ `MESSAGE_BOX; detect_abomination[VOID_CHANNEL; message]];
- };
+ }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Start Process                     //
