@@ -17,15 +17,15 @@ case ${RESPONSE:=0} in
      exit 1 ;;
 esac
 
-command="gcc -DKXVER=3 -I include/ -shared -fPIC ${CSTD} -o lib/${1} ";
+COMMAND="gcc -DKXVER=3 -I include/ -shared -fPIC ${CSTD} -o lib/${1} ";
 
 ## Remove artefact name
 shift;
 for source in $@
 do
   ## Add source file
-  command="${command} src/${source}";
+  COMMAND="${COMMAND} src/${source}";
 done
 
 ## Execute the command
-${command};
+${COMMAND};

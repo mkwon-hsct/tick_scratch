@@ -30,8 +30,8 @@ I TASK_CHANNEL[2] = {-1, -1};
 
 /**
  * @brief Dictionary to store results of execution of functions.
- * - key: Task ID.
- * - value: Result of execution.
+ * - keys: Task ID.
+ * - values: Result of execution.
  */
 K RESULTS = (K) 0;
 
@@ -109,8 +109,8 @@ K initialize(){
 }
 
 /**
- * @brief Check internal channel and generate Fibonacci sequence if some
- *  number was posted.
+ * @brief Check internal channel and generate Fibonacci sequence when some
+ *  number is posted.
  */
 void *evaluator(void *unused){
   // Buffer to receive a task
@@ -155,7 +155,7 @@ K start_background_thread(){
 }
 
 /**
- * @brief Execute function with arguments remotely.
+ * @brief Execute a function with arguments remotely.
  * @param function: Function to execute.
  * @param arguments: Arguments of the function.
  */

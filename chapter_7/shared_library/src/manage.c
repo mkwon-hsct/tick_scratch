@@ -9,8 +9,7 @@
 
 /**
  * @brief Generate int andpass to q.
- * @return
- * - int: Internally generated int value.
+ * @return int: Internally generated int value.
  */
 K no_input(){
   K atom = ki(10000);
@@ -18,10 +17,9 @@ K no_input(){
 }
 
 /**
- * @brief Take argument from q and return it.
+ * @brief Take an argument from q and return it.
  * @param something: Argument to return.
- * @return
- * - any: Argument itself
+ * @return any: Argument itself
  */
 K sonomama(K something){
   return r1(something);
@@ -64,15 +62,14 @@ K picky(K something){
 
 /**
  * @brief Return general null.
- * @return
- * - general null
+ * @return general null
  */
 K nullify(){
   return (K) 0;
 }
 
 /**
- * @brief Generate a object but return null.
+ * @brief Generate an object but return null.
  */
 K pure_waste(){
   K time = kt(60*60*1000);
@@ -92,8 +89,7 @@ K complex_waste(K garbage){
 
 /**
  * @brief Create a string.
- * @return 
- * - string
+ * @return string
  */
 K create_string(){
   return kp("this is a string.");
@@ -101,8 +97,7 @@ K create_string(){
 
 /**
  * @brief Create a string with the first 14 characters.
- * @return 
- * - string
+ * @return string
  */
 K create_string2(){
   return kpn("cannot see whole message!", 14);
@@ -110,8 +105,7 @@ K create_string2(){
 
 /**
  * @brief Create a timestamp list.
- * @return 
- * - list of timestamp.
+ * @return list of timestamp.
  */
 K simple_list(){
   K list = ktn(KP, 3);
@@ -127,15 +121,14 @@ K simple_list(){
 
 /**
  * @brief Create a timestamp list with copy.
- * @return 
- * - list of timestamp.
+ * @return list of timestamp.
  */
 K simple_list2(){
   K list = ktn(KP, 3);
 
   // Store nanoseconds since 2000.01.01D00:00:00
   J times[3]={86400LL * 1000000000LL,  -86400LL * 1000000000LL, 172800LL * 1000000000LL};
-  memcpy((void*) kJ(list), (const void*) times , 3 * sizeof(J));
+  memcpy((void*) kJ(list), (const void*) times, 3 * sizeof(J));
 
   return list;
 }
@@ -189,8 +182,7 @@ K compound_list2(){
 
 /**
  * @brief Create a dictionary.
- * @return 
- * - dictionary
+ * @return dictionary
  */
 K create_dictionary(){
 
@@ -217,8 +209,7 @@ K create_dictionary(){
 
 /**
  * @brief Create a table from a dictionary.
- * @return 
- * - table
+ * @return table
  */
 K create_table(){
   return xT(create_dictionary());
@@ -226,8 +217,7 @@ K create_table(){
 
 /**
  * @brief Convert a table into a keyed table.
- * @return 
- * - keyed table
+ * @return keyed table
  */
 K enkey(){
   // Hold as an object
@@ -240,8 +230,7 @@ K enkey(){
 
 /**
  * @brief Convert a keyed table into a table.
- * @return 
- * - table
+ * @return table
  */
 K unkey(){
   K keyed_table = enkey();
@@ -250,8 +239,7 @@ K unkey(){
 
 /**
  * @brief Build a keyed table from two tables.
- * @return 
- * - keyed table
+ * @return keyed table
  */
 K artificial_keyed_table(){
 
@@ -285,8 +273,7 @@ K artificial_keyed_table(){
 
 /**
  * @brief Create a compound list by adding elements.
- * @return 
- * - compound list
+ * @return compound list
  */
 K add_to_compound(){
   K list = ktn(0, 0);
@@ -298,9 +285,8 @@ K add_to_compound(){
 }
 
 /**
- * @brief Create a symbol list by adding elemens.
- * @return
- * - symbol list
+ * @brief Create a symbol list by adding elements.
+ * @return list of symbol
  */
 K add_to_symbol_list(){
   K list = ktn(KS, 0);
@@ -311,8 +297,7 @@ K add_to_symbol_list(){
 
 /**
  * @brief Create a simple list by adding elements.
- * @return 
- * - list of time
+ * @return list of time
  */
 K add_to_simple(){
   K list = ktn(KT, 2);

@@ -45,8 +45,7 @@ K free_toml_document(K document){
 /**
  * @brief Get TOML boolean value.
  * @param element: TOML element.
- * @return
- * - bool
+ * @return bool
  */
 K get_bool(toml_datum_t element){
   return kb(element.u.b);
@@ -55,8 +54,7 @@ K get_bool(toml_datum_t element){
 /**
  * @brief Get TOML int value.
  * @param element: TOML element.
- * @return
- * - long
+ * @return long
  */
 K get_int(toml_datum_t element){
   return kj(element.u.i);
@@ -65,8 +63,7 @@ K get_int(toml_datum_t element){
 /**
  * @brief Get TOML double value.
  * @param element: TOML element.
- * @return
- * - float
+ * @return float
  */
 K get_double(toml_datum_t element){
   return kf(element.u.d);
@@ -133,7 +130,13 @@ K get_timestamp(toml_datum_t element){
       }
       else{
         // 'Z' and 'z' are parsed as "Z0"
-        // https://github.com/cktan/tomlc99/blob/master/toml.c#L1959
+        // Around https://github.com/cktan/tomlc99/blob/master/toml.c#L1959 (can be changed since they don't have any release)
+        // ```
+        // if (*p == 'Z' || *p == 'z') {
+				//   *z++ = 'Z'; p++;
+				//   *z = 0;
+        // }
+        // ```
         // UTC
         // Nothing to do
       }
@@ -233,6 +236,7 @@ K get_array(toml_array_t *array){
       break;
     default:
       // List of timestamp is unlikely to exist
+      // Compound list is not supported
       return krr("nyi");
   }
 
@@ -246,8 +250,7 @@ K get_array(toml_array_t *array){
 /**
  * @brief Parse a TOML file.
  * @param file_path_: File handle to a TOML file.
- * @return 
- * - foreign: Parsed document.
+ * @return foreign: Parsed document.
  */
 K load_toml(K file_path_){
 
@@ -289,8 +292,7 @@ K load_toml(K file_path_){
 /**
  * @brief Get all keys in a document.
  * @param document_: Result object of parsing a TOML file.
- * @return
- * - list of symbol: Keys in the document.
+ * @return list of symbol: Keys in the document.
  */
 K get_keys(K document_){
 

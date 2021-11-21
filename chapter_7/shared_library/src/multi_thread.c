@@ -9,8 +9,8 @@
 #include <k.h>
 
 /**
- * @brief Calculate average of list of int.
- * @param list {variable}:
+ * @brief Calculate an average of list of int.
+ * @param list {any}:
  * - list of int: List of int to calculate average.
  * - any: Unexpected type.
  */
@@ -58,13 +58,12 @@ int get_size(G *bytes){
 }
 
 /**
- * @brief Launch a thread to calculate an average of integer sequence while main
- *  thread add a byte to a compound list to be returned at the end.
+ * @brief Launch a thread to calculate an average of integer sequence while main thread adds
+ *  a byte to a compound list to be returned at the end.
  * @param list: Argument passed to the sub thread.
  * - list of int: List to calculate. The remote function returns float type.
  * - any: Wrong type. The remote function returns symbol type.
- * @return 
- * - compound list
+ * @return compound list
  */
 K remote_avg(K list){
   // List to which remotely generated value is added.

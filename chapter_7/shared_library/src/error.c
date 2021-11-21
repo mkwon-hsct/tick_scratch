@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 /**
- * @brief Display type and contents of a catched error.
+ * @brief Display a type and contents of a catched error.
  * @param mode {int}: Flag to switch likely error object:
  * - 0: Use nullptr.
  * - 1: Use general null.
