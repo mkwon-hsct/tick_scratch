@@ -1,6 +1,6 @@
 /
-* @file exercise\1.q
-* @overview Generate password file.
+* @file exercise_1.q
+* @overview Generate a password file.
 \
 
 credentials: `peter`jacob`phillip!("churchontherock"; "faithwithoutactionisdead"; "wannaseethefather");

@@ -1,13 +1,13 @@
 /
 * @file chapter_2.q
-* @overview Anser keys for the exercises of chapter 2.
+* @overview Anser keys for the exercises of the chapter 2.
 \
 
 exercise_1:type (2D; 00:01);
 
 exercise_2:(2#`time`sym`bid`ask`bsize`asize), `channel, (2 _ `time`sym`bid`ask`bsize`asize);
 
-// You can't swap / and \ because it leadds to a different answer
+// You can't swap / and \ because it leads to a different result
 exercise_3:1 2 3 4 */:\: 10 20 30 40;
 
 // Possible answer 1

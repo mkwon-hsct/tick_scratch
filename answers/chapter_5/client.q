@@ -1,6 +1,6 @@
 /
 * @file client.q
-* @overview Answer of the exercises for chapter 5.
+* @overview Answer keys for the exercises of the chapter 5.
 * @note This process must be started with:
 *   q client.q -user peter -password churchontherock
 \
@@ -43,13 +43,13 @@ registerID:{[id] MY_ID::id;};
       neg[SERVER_SOCKET] (`giveMeID; ::)
     ]
   ];
- };
+ }
 
 .z.pc:{[server]
   -2 "Oh no!! Server connection dropped!!";
   // Start timer
   system "t 1000";
- };
+ }
 
 // Connect to a server. One of followings:
 // `::5000:peter:churchontherock
