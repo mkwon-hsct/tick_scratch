@@ -24,7 +24,7 @@ MY_ID: 0;
 * @brief Register client ID assigned by a server to this process.
 * @param id {long}: Client ID assigned by a server.
 \
-registerID:{[id] MY_ID::id;};
+registerID:{[id] MY_ID::id;}
 
 /
 * @brief Retry to connect with a timer.
