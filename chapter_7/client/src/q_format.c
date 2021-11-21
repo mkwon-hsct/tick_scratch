@@ -32,7 +32,7 @@ char BUFFER[2048];
   return (written < 0)? -1: cursor + written;
 
 /**
- * @brief Format list object without delimiting space and proceed cursor.
+ * @brief Format list object without delimiting by spaces and proceed cursor.
  * @param object: K object.
  * @param fmt: Format to stringify an element of the list.
  * @param accessor: Macro to convert K object to an array.
@@ -51,16 +51,16 @@ char BUFFER[2048];
   }
 
 /**
- * @brief Format list object with delimiting space and proceed cursor.
+ * @brief Format list object delimiting by spaces and proceed cursor.
  * @param object: K object.
  * @param empty: String to display in case of an empty list.
- * @param fmt1: Format to stringify an element of the list with space.
- * @param fmt1: Format to stringify an element of the list without space.
+ * @param fmt1: Format to stringify an element of the list with a space.
+ * @param fmt2: Format to stringify an element of the list without a space.
  * @param accessor: Macro to convert K object to an array.
  * @param tail: Suceeding type indicator of a list.
  * @return 
  * - -1: Error.
- * other: Current location in the output buffer.
+ * - other: Current location in the output buffer.
  */
 #define format_list(object, empty, fmt1, fmt2, accessor, tail) \
   int written = 0; \

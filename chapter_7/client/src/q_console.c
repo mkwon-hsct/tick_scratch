@@ -40,7 +40,7 @@ const char *COUNTRIES[4] = {"Japan", "Korea", "Vietnam", "Singapore"};
 char FLAGS[3] = "OAB";
 
 /**
- * @brief Mutex to send data to q process.
+ * @brief Mutex to send data to a q process.
  */
 pthread_mutex_t MUTEX;
 
@@ -53,8 +53,10 @@ pthread_mutex_t MUTEX;
  * @note Somehow this struct is not defined in `sys/time.h`.
  */
 typedef struct {
-    time_t tv_sec;            /* Seconds.  */
-    suseconds_t tv_usec;      /* Microseconds.  */
+  // Seconds
+  time_t tv_sec;
+  // Microseconds
+  suseconds_t tv_usec;
 } timeval;
 
 /**
@@ -71,8 +73,7 @@ typedef struct{
 
 /**
  * @brief Generate data to send.
- * @return 
- * - compound list: Single row.
+ * @return compound list: Single row.
  */
 K generate(){
   // List to return
@@ -93,7 +94,7 @@ K generate(){
 }
 
 /**
- * @brief Send single row to q process specified times by a task set.
+ * @brief Send a single row to a q process specified times in a task set.
  * @param task_set: Pointer to a struct which holds a target socket and the number of data to generate.
  */
 void *task(void *task_set_){
@@ -134,7 +135,7 @@ void *task(void *task_set_){
  * - [0]: Port number of target q process.
  */
 int main(int argc, char *argv[]){
-  // Connect to local q process with Unix domain socket
+  // Connect to a local q process with Unix domain socket
   int socket = khpun("0.0.0.0", atoi(argv[1]), "console:getmein", 1000);
   // Handle error if any
   switch (socket){
@@ -172,12 +173,12 @@ int main(int argc, char *argv[]){
       continue;
     }
     else if(!strncmp(INPUT, "feed[", 5)){
-      // Launch data feed.
+      // Launch a data feed.
       int n=0;
       sscanf(INPUT, "feed[%d]", &n);
       pthread_t id;
       TaskSet new_task;
-      // Define task set with the target port and the number of rows to send
+      // Define a task set with the target port and the number of rows to send
       new_task.socket = socket;
       new_task.num_rows = n;
       if (pthread_create(&id, NULL, task, (void *) &new_task) != 0) {
@@ -190,7 +191,7 @@ int main(int argc, char *argv[]){
       pthread_mutex_lock(&MUTEX);
       K result = ee(k(socket, INPUT, (K) 0));
       pthread_mutex_unlock(&MUTEX);
-      // Display result
+      // Display the result
       format(result);
       r0(result);
     }   
