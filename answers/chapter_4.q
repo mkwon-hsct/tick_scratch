@@ -25,6 +25,8 @@ exercise_4: {[date_]
   (` sv (`$":", string date_; `expense; `)) set .Q.en[`:.] delete date from `person xasc select from expense where date=date_
  } each exec distinct date from expense;
 
+// You must load the HDB built with buildhdb.q.
 // mini_quote2:select from quote where date=2013.05.22, sym in `AAPL`DELL`GOOG`MSFT, time within 09:30:00 09:30:05;
-exercise_5: fills (`time xasc select time from mini_quote2) lj/ {[sym_] `time xkey (`$string[sym_],/: ("_bid"; "_ask")) xcol select bid, ask, time from mini_quote2 where sym = sym_} each exec distinct sym from mini_quote2;
- 
+exercise_5: fills (`time xasc select time from mini_quote2) lj/ {[sym_]
+  `time xkey (`$string[sym_],/: ("_bid"; "_ask")) xcol select bid, ask, time from mini_quote2 where sym = sym_
+ } each exec distinct sym from mini_quote2;
