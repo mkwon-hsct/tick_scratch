@@ -3,7 +3,9 @@
 * @overview Anser keys for the exercises of the chapter 4.
 \
 
-exercise_1:{[] string .[!] flip ((Hazael; Syria); (Nebuchadenezzar; Babylon); (David; Israel))}
+exercise_1:{[]
+  string .[!] flip ((Hazael; Syria); (Nebuchadenezzar; Babylon); (David; Israel))
+ }
 
 exercise_2:{[]
   ![trades; ((within; `date; 2013.07.01 2013.07.03); (in; `sym; enlist `AAPL`MSFT)); 0b; `sym`size!(({`$3#/:string x}; `sym); (xbar; 10000; `size))]

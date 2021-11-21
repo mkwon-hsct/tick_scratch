@@ -26,5 +26,5 @@ exercise_6:"*D"$' "," vs "Million sales!, 05 April 2020";
 // Cast first string to string
 exercise_6:"cD"$' "," vs "Million sales!, 05 April 2020";
 
-// Add "k" so that 'cut' leaves a character to the head of the first block
+// Add "k" (arbitrary character) so that 'cut' leaves a character to the head of the first block
 exercise_7:avg each 1 _/: (where orig in .Q.a) cut orig:"k", "051x64a9300v75h983";
