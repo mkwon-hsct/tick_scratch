@@ -1,6 +1,6 @@
-# Tick Architecture From Scratch
+# q - Tick Architecture From Scratch and Extension with C -
 
-書籍名：『ゼロから作るTick Architecture』
+書籍名：『q言語－ゼロから作るTick ArchitectureならびにC言語による拡張－』
 
 著者：Mattew Kwon
 
