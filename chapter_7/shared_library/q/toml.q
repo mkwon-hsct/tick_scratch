@@ -18,7 +18,7 @@ load_toml: `:lib/qtoml 2: (`load_toml; 1);
 get_keys: `:lib/qtoml 2: (`get_keys; 1);
 
 /
-* @brief Get an TOML element from a document with a key.
+* @brief Get a TOML element from a document with a key.
 * @param document_ {foreign}: Result object of parsing a TOML file.
 * @param key {symbol}: Key of an element to retrieve.
 * @return

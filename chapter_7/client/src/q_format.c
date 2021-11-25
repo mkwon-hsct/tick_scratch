@@ -145,15 +145,16 @@ int format_timestamp(J timestamp, int cursor){
   time_t sec = timestamp / 1000000000;
   int nanos = timestamp % 1000000000;
   struct tm *time=localtime(&sec);
-  int written = sprintf(BUFFER+cursor, "%4d.%02d.%02dD%02d:%02d:%02d.%09d",
-                time->tm_year+1930,
-                time->tm_mon+1,
-                time->tm_mday-1,
-                time->tm_hour,
-                time->tm_min,
-                time->tm_sec,
-                nanos
-                );
+  int written = sprintf(
+    BUFFER+cursor, "%4d.%02d.%02dD%02d:%02d:%02d.%09d",
+    time->tm_year+1930,
+    time->tm_mon+1,
+    time->tm_mday-1,
+    time->tm_hour,
+    time->tm_min,
+    time->tm_sec,
+    nanos
+  );
 
   return (written < 0)? -1: cursor + written;
 }

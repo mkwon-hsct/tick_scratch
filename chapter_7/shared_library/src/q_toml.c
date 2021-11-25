@@ -316,7 +316,7 @@ K get_keys(K document_){
 }
 
 /**
- * @brief Get an TOML element from a document with a key.
+ * @brief Get a TOML element from a document with a key.
  * @param document_: Result object of parsing a TOML file.
  * @param key: Key of an element to retrieve.
  * @return
