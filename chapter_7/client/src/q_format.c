@@ -1,3 +1,8 @@
+/**
+ * @file q_format.c
+ * @brief Define formatting functions to display K object alike the q console.
+ */
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                     Load Libraries                    //
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//

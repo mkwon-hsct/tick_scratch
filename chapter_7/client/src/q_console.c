@@ -1,6 +1,6 @@
 /**
  * @file q_console.c
- * @brief Define backend thread task and main console.
+ * @brief Define backend thread task and the main console.
  */ 
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
